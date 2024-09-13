@@ -58,3 +58,10 @@ INSERT INTO blood_type (blood_type_name) VALUES ('O') ON CONFLICT (blood_type_na
 -- Data for blood RH
 INSERT INTO blood_rh (blood_rh) VALUES ('+') ON CONFLICT (blood_rh) DO NOTHING;
 INSERT INTO blood_rh (blood_rh) VALUES ('-') ON CONFLICT (blood_rh) DO NOTHING;
+
+-- Data for roles
+INSERT INTO roles (role_name) VALUES ('ADMINISTRADOR') ON CONFLICT (role_name) DO NOTHING;
+INSERT INTO roles (role_name) VALUES ('ASESOR') ON CONFLICT (role_name) DO NOTHING;
+INSERT INTO roles (role_name) VALUES ('ENTRENADOR') ON CONFLICT (role_name) DO NOTHING;
+INSERT INTO roles (role_name) VALUES ('PERSONAL DE ASEO') ON CONFLICT (role_name) DO NOTHING;
+INSERT INTO roles (role_name) VALUES ('MIEMBRO') ON CONFLICT (role_name) DO NOTHING;
