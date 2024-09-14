@@ -1,6 +1,7 @@
 package com.activegym.activegym.Controllers;
 
 import com.activegym.activegym.DTO.UserDTO;
+import com.activegym.activegym.DTO.UserResponseDTO;
 import com.activegym.activegym.Entities.User;
 import com.activegym.activegym.Services.UserService;
 import lombok.AllArgsConstructor;
@@ -20,12 +21,12 @@ public class UserController {
     private final UserService userService; // Injected by Lombok
 
     @GetMapping
-    public Iterable<User> list() {
+    public Iterable<UserResponseDTO> list() {
         return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    public User get(@PathVariable("id") Long id) {
+    public UserResponseDTO get(@PathVariable("id") Long id) {
         return userService.findById(id);
     }
 

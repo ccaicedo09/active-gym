@@ -3,6 +3,8 @@ package com.activegym.activegym.Entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -26,10 +28,23 @@ public class User {
     private LocalDate dateOfBirth;
     private Integer weight;
     private Integer height;
-    private int genderId;
-    private int epsId;
-    private int bloodTypeId;
-    private int bloodRhId;
+
+    @ManyToOne
+    @JoinColumn(name = "gender_id", referencedColumnName = "id")
+    private Gender gender;
+
+    @ManyToOne
+    @JoinColumn(name = "eps_id", referencedColumnName = "id")
+    private Eps eps;
+
+    @ManyToOne
+    @JoinColumn(name = "blood_type_id", referencedColumnName = "id")
+    private BloodType bloodType;
+
+    @ManyToOne
+    @JoinColumn(name = "blood_rh_id", referencedColumnName = "id")
+    private BloodRh bloodRh;
+
     private String profilePicture;
     private int age; // Calculated by Service
 }
