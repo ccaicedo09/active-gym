@@ -3,10 +3,19 @@ package com.activegym.activegym.Services;
 
 import com.activegym.activegym.DTO.UserDTO;
 import com.activegym.activegym.DTO.UserResponseDTO;
+import com.activegym.activegym.Entities.BloodRh;
+import com.activegym.activegym.Entities.BloodType;
+import com.activegym.activegym.Entities.Eps;
+import com.activegym.activegym.Entities.Gender;
 import com.activegym.activegym.Entities.User;
+import com.activegym.activegym.Repositories.BloodRhRepository;
+import com.activegym.activegym.Repositories.BloodTypeRepository;
+import com.activegym.activegym.Repositories.EpsRepository;
+import com.activegym.activegym.Repositories.GenderRepository;
 import com.activegym.activegym.Repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,6 +28,15 @@ import java.util.stream.StreamSupport;
 @Service
 public class UserService {
 
+    @Autowired
+    private EpsRepository epsRepository;
+    @Autowired
+    private BloodTypeRepository bloodTypeRepository;
+    @Autowired
+    private BloodRhRepository bloodRhRepository;
+    @Autowired
+    private GenderRepository genderRepository;
+
     private final UserRepository userRepository;
     private final ModelMapper mapper;
 
@@ -29,9 +47,9 @@ public class UserService {
         return users.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    public UserResponseDTO findById(Long id) {
+    public UserResponseDTO findByDocument(String document) {
         User user = userRepository
-                .findById(id)
+                .findByDocument(document)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
         setAge(user);
         return convertToDTO(user);
@@ -39,7 +57,23 @@ public class UserService {
 
     public User create(UserDTO userDTO) {
         User user = mapper.map(userDTO, User.class);
-        user.setPassword(userDTO.getId().toString()); // Default password, should be changed by User
+
+        Eps eps = epsRepository.findByEpsName(userDTO.getEps())
+                .orElseThrow(() -> new RuntimeException("EPS no encontrado"));
+        BloodType bloodType = bloodTypeRepository.findByBloodTypeName(userDTO.getBloodType())
+                .orElseThrow(() -> new RuntimeException("Tipo de sangre no encontrado"));
+        BloodRh bloodRh = bloodRhRepository.findByBloodRh(userDTO.getBloodRh())
+                .orElseThrow(() -> new RuntimeException("Factor Rh no encontrado"));
+        Gender gender = genderRepository.findByGenderName(userDTO.getGender())
+                .orElseThrow(() -> new RuntimeException("Género no encontrado"));
+
+        user.setEps(eps);
+        user.setBloodType(bloodType);
+        user.setBloodRh(bloodRh);
+        user.setGender(gender);
+
+        user.setPassword(userDTO.getDocument()); // Default password, should be changed by User
+
         return userRepository.save(user);
     }
 
@@ -56,6 +90,7 @@ public class UserService {
     private UserResponseDTO convertToDTO(User user) {
         UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
+        dto.setDocument(user.getDocument());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setPhone(user.getPhone());

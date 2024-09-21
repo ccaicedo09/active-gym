@@ -4,11 +4,13 @@ import com.activegym.activegym.Entities.Eps;
 import com.activegym.activegym.Services.EpsService;
 import com.activegym.activegym.Services.GenderService;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@CrossOrigin // TEMPORAL FEATURE
 @AllArgsConstructor
 @RestController
 @RequestMapping("/eps")
