@@ -5,6 +5,7 @@ import com.activegym.activegym.DTO.UserResponseDTO;
 import com.activegym.activegym.Entities.User;
 import com.activegym.activegym.Services.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
+@CrossOrigin // TEMPORAL FEATURE
 @AllArgsConstructor
 @RequestMapping("/users")
 @RestController
@@ -25,9 +26,9 @@ public class UserController {
         return userService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public UserResponseDTO get(@PathVariable("id") Long id) {
-        return userService.findById(id);
+    @GetMapping("/{document}")
+    public UserResponseDTO get(@PathVariable("document") String document) {
+        return userService.findByDocument(document);
     }
 
     @PostMapping
