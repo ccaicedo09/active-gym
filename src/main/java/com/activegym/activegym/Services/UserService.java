@@ -58,6 +58,24 @@ public class UserService {
     public User create(UserDTO userDTO) {
         User user = mapper.map(userDTO, User.class);
 
+        castAuxiliarFields(userDTO, user);
+
+        user.setPassword(userDTO.getDocument()); // Default password, should be changed by User
+
+        return userRepository.save(user);
+    }
+
+    public User update(String document, UserDTO userDTO) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        castAuxiliarFields(userDTO, user);
+
+        return userRepository.save(user);
+    }
+
+    private void castAuxiliarFields(UserDTO userDTO, User user) {
         Eps eps = epsRepository.findByEpsName(userDTO.getEps())
                 .orElseThrow(() -> new RuntimeException("EPS no encontrado"));
         BloodType bloodType = bloodTypeRepository.findByBloodTypeName(userDTO.getBloodType())
@@ -71,10 +89,6 @@ public class UserService {
         user.setBloodType(bloodType);
         user.setBloodRh(bloodRh);
         user.setGender(gender);
-
-        user.setPassword(userDTO.getDocument()); // Default password, should be changed by User
-
-        return userRepository.save(user);
     }
 
     private void setAge(User user) {
