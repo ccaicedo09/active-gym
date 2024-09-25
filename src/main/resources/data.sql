@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS blood_rh (
     blood_rh VARCHAR(255) NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS membership_status (
+    id SERIAL PRIMARY KEY,
+    description VARCHAR(255) NOT NULL UNIQUE
+);
+
 -- Data for gender entity
 INSERT INTO genders (gender_name) VALUES ('Masculino') ON CONFLICT (gender_name) DO NOTHING;
 INSERT INTO genders (gender_name) VALUES ('Femenino') ON CONFLICT (gender_name) DO NOTHING;
@@ -65,3 +70,8 @@ INSERT INTO roles (role_name) VALUES ('ASESOR') ON CONFLICT (role_name) DO NOTHI
 INSERT INTO roles (role_name) VALUES ('ENTRENADOR') ON CONFLICT (role_name) DO NOTHING;
 INSERT INTO roles (role_name) VALUES ('PERSONAL DE ASEO') ON CONFLICT (role_name) DO NOTHING;
 INSERT INTO roles (role_name) VALUES ('MIEMBRO') ON CONFLICT (role_name) DO NOTHING;
+
+-- Data for membership status
+INSERT INTO membership_status (description) VALUES ('ACTIVA') ON CONFLICT (description) DO NOTHING;
+INSERT INTO membership_status (description) VALUES ('INACTIVA') ON CONFLICT (description) DO NOTHING;
+INSERT INTO membership_status (description) VALUES ('CONGELADA') ON CONFLICT (description) DO NOTHING;
