@@ -1,11 +1,15 @@
 package com.activegym.activegym.util;
 
 import com.activegym.activegym.dto.MembershipResponseDTO;
+import com.activegym.activegym.dto.RoleDTO;
 import com.activegym.activegym.dto.UserResponseDTO;
 import com.activegym.activegym.model.Memberships.Membership;
 import com.activegym.activegym.model.Users.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,11 @@ public class ConvertToResponse {
         dto.setEpsName(user.getEps().getEpsName());
         dto.setBloodTypeName(user.getBloodType().getBloodTypeName());
         dto.setBloodRhName(user.getBloodRh().getBloodRh());
+        Set<RoleDTO> roleDTOs = user.getRoles().stream()
+                .map(role -> new RoleDTO(role.getId(), role.getRoleName()))
+                .collect(Collectors.toSet());
+        dto.setRoles(roleDTOs);
+
         return dto;
     }
 

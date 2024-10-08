@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,4 +21,5 @@ public class UserResponseDTO {
     private String bloodTypeName;
     private String bloodRhName;
     private int age;
+    private Set<RoleDTO> roles;
 }

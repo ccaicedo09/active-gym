@@ -1,7 +1,7 @@
 package com.activegym.activegym.model.Roles;
 
-
 import com.activegym.activegym.model.Users.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,8 +29,9 @@ public class Role {
     private Integer id;
 
     @Column(nullable = false, unique = true)
-    private String role_name;
+    private String roleName;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore
     private Set<User> users;
 }
