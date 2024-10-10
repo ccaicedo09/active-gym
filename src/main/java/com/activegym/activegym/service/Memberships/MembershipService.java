@@ -11,6 +11,7 @@ import com.activegym.activegym.repository.Memberships.MembershipStatusRepository
 import com.activegym.activegym.repository.Memberships.MembershipTypeRepository;
 import com.activegym.activegym.repository.Users.UserRepository;
 import com.activegym.activegym.util.ConvertToResponse;
+import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class MembershipService {
     private final UserRepository userRepository;
     private final MembershipTypeRepository membershipTypeRepository;
     private final MembershipStatusRepository membershipStatusRepository;
+    private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
 
     public List<MembershipResponseDTO> getAllMemberships() {
         List<Membership> memberships = membershipRepository.findAll();
@@ -53,7 +55,9 @@ public class MembershipService {
         User user = userRepository.findByDocument(membershipDTO.getUserDocument())
                 .orElseThrow(() -> new RuntimeException("User (member) not found"));
 
-        User soldBy = userRepository.findByDocument(membershipDTO.getSoldByDocument())
+        String sellerDocument = extractCurrentSessionDocument.extractDocument();
+
+        User soldBy = userRepository.findByDocument(sellerDocument)
                 .orElseThrow(() -> new RuntimeException("User (seller) not found"));
 
         MembershipType membershipType = membershipTypeRepository.findByName(membershipDTO.getMembershipTypeName())
