@@ -37,9 +37,9 @@ public class MembershipController {
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping("/{document}")
-    public ResponseEntity<MembershipResponseDTO> getUserMemberships(@PathVariable("document") String document) {
+    public ResponseEntity<List<MembershipResponseDTO>> getUserMemberships(@PathVariable("document") String document) {
 
-        MembershipResponseDTO memberships = membershipService.getUserMemberships(document);
+        List<MembershipResponseDTO> memberships = membershipService.getUserMemberships(document);
 
         return ResponseEntity.ok(memberships);
     }
