@@ -38,6 +38,7 @@ public class MembershipService {
                 .toList();
     }
 
+    // Pendant for fixing the issue -> not returning all user memberships
     public MembershipResponseDTO getUserMemberships(String document) {
         User user = userRepository.findByDocument(document)
                 .orElseThrow(() -> new RuntimeException("User not found"));
