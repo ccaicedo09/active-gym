@@ -74,4 +74,39 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    public void delete(String document) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        userRepository.delete(user);
+    }
+
+    public void addRole(String document, String roleName) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        Role role = roleRepository.findByRoleName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        if (!user.getRoles().contains(role)) {
+            user.getRoles().add(role);
+        }
+
+        userRepository.save(user);
+    }
+
+    public void removeRole(String document, String roleName) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        Role role = roleRepository.findByRoleName(roleName)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        if (user.getRoles().contains(role)) {
+            user.getRoles().remove(role);
+        }
+
+        userRepository.save(user);
+    }
 }

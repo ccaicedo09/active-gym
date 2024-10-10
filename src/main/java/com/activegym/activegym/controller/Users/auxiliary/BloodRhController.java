@@ -23,8 +23,8 @@ public class BloodRhController {
         return bloodRhService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public BloodRh get(@PathVariable("id") Integer id) {
-        return bloodRhService.findById(id);
-    }
+//    @GetMapping("/{id}")
+//    public BloodRh get(@PathVariable("id") Integer id) {
+//        return bloodRhService.findById(id);
+//    }
 }

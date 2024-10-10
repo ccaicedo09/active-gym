@@ -23,9 +23,9 @@ public class GenderController {
         return genderService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Gender get(@PathVariable("id") Integer id) {
-        return genderService.findById(id);
-    }
+//    @GetMapping("/{id}")
+//    public Gender get(@PathVariable("id") Integer id) {
+//        return genderService.findById(id);
+//    }
 
 }

@@ -22,8 +22,8 @@ public class EpsController {
         return epsService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Eps get(@PathVariable("id") Integer id) {
-        return epsService.findById(id);
-    }
+//    @GetMapping("/{id}")
+//    public Eps get(@PathVariable("id") Integer id) {
+//        return epsService.findById(id);
+//    }
 }

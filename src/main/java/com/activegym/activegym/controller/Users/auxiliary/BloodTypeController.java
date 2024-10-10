@@ -23,8 +23,8 @@ public class BloodTypeController {
         return bloodTypeService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public BloodType get(@PathVariable("id") Integer id) {
-        return bloodTypeService.findById(id);
-    }
+//    @GetMapping("/{id}")
+//    public BloodType get(@PathVariable("id") Integer id) {
+//        return bloodTypeService.findById(id);
+//    }
 }
