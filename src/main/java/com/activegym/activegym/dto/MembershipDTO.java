@@ -11,5 +11,4 @@ public class MembershipDTO {
     private String userDocument;
     private String membershipTypeName;
     private LocalDate startDate;
-    private String soldByDocument;
 }

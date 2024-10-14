@@ -11,8 +11,10 @@ import com.activegym.activegym.repository.Memberships.MembershipStatusRepository
 import com.activegym.activegym.repository.Memberships.MembershipTypeRepository;
 import com.activegym.activegym.repository.Users.UserRepository;
 import com.activegym.activegym.util.ConvertToResponse;
+import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,25 +29,34 @@ public class MembershipService {
     private final UserRepository userRepository;
     private final MembershipTypeRepository membershipTypeRepository;
     private final MembershipStatusRepository membershipStatusRepository;
+    private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
 
+    // Returns all memberships, ordered by end date
     public List<MembershipResponseDTO> getAllMemberships() {
-        List<Membership> memberships = membershipRepository.findAll();
+        List<Membership> memberships = membershipRepository.findAll(Sort.by(Sort.Direction.DESC, "endDate"));
 
         return memberships.stream()
                 .map(ConvertToResponse::convertToMembershipResponseDTO)
                 .toList();
     }
 
-    public MembershipResponseDTO getUserMemberships(String document) {
+    // Returns all memberships of a user, ordered by end date (active membership first)
+    public List<MembershipResponseDTO> getUserMemberships(String document) {
         User user = userRepository.findByDocument(document)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Membership membership = membershipRepository.findByUserId(user)
-                .orElseThrow(() -> new RuntimeException("Membership not found"));
+        List<Membership> memberships = membershipRepository.findAllByUserIdOrderByEndDateDesc(user);
 
-        return ConvertToResponse.convertToMembershipResponseDTO(membership);
+        if (memberships.isEmpty()) {
+            throw new RuntimeException("User has no memberships");
+        }
+
+        return memberships.stream()
+                .map(ConvertToResponse::convertToMembershipResponseDTO)
+                .toList();
     }
 
+    // Create a new membership
     public MembershipResponseDTO create(MembershipDTO membershipDTO){
 
         Membership membership = mapper.map(membershipDTO, Membership.class);
@@ -53,7 +64,9 @@ public class MembershipService {
         User user = userRepository.findByDocument(membershipDTO.getUserDocument())
                 .orElseThrow(() -> new RuntimeException("User (member) not found"));
 
-        User soldBy = userRepository.findByDocument(membershipDTO.getSoldByDocument())
+        String sellerDocument = extractCurrentSessionDocument.extractDocument();
+
+        User soldBy = userRepository.findByDocument(sellerDocument)
                 .orElseThrow(() -> new RuntimeException("User (seller) not found"));
 
         MembershipType membershipType = membershipTypeRepository.findByName(membershipDTO.getMembershipTypeName())

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin // TEMPORAL FEATURE
+@CrossOrigin(origins = {"http://localhost:4200"})
 @AllArgsConstructor
 @RequestMapping("/genders")
 @RestController
@@ -23,9 +23,9 @@ public class GenderController {
         return genderService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Gender get(@PathVariable("id") Integer id) {
-        return genderService.findById(id);
-    }
+//    @GetMapping("/{id}")
+//    public Gender get(@PathVariable("id") Integer id) {
+//        return genderService.findById(id);
+//    }
 
 }

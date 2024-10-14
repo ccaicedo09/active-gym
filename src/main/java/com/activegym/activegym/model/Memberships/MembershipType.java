@@ -1,6 +1,9 @@
 package com.activegym.activegym.model.Memberships;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,8 +27,13 @@ public class MembershipType {
     private String name;
     private Double price;
     private Integer duration;
+    @Column(length = 1000)
     private String description;
+
+    @JsonProperty("isTransferable")
     private boolean isTransferable;
+
+    @JsonProperty("isFreezable")
     private boolean isFreezable;
 
 }
