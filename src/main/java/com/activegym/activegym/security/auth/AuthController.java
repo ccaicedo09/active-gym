@@ -1,5 +1,6 @@
 package com.activegym.activegym.security.auth;
 
+import com.activegym.activegym.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,9 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/verify-token")
+    public boolean verifyToken(@RequestBody TokenRequest tokenRequest) {
+        String token = tokenRequest.getToken();
+        return !jwtService.isTokenExpired(token);
     }
 }
