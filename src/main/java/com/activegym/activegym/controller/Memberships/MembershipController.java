@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin
+@CrossOrigin(origins = {"http://localhost:4200"})
 @AllArgsConstructor
 @RequestMapping("api/memberships")
 @RestController
@@ -58,16 +58,9 @@ public class MembershipController {
         return membershipTypeService.create(membershipTypeDTO);
     }
 
-    @PreAuthorize("permitAll()")
-    @GetMapping("/types")
+    @GetMapping("/public/types")
     public Iterable<MembershipType> list() {
         return membershipTypeService.findAll();
-    }
-
-    @PreAuthorize("permitAll()")
-    @GetMapping("/types/{id}")
-    public MembershipType get(@PathVariable("id") Long id) {
-        return membershipTypeService.findById(id);
     }
 
 }

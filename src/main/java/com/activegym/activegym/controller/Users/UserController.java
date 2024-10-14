@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-@CrossOrigin // TEMPORAL FEATURE
+@CrossOrigin(origins = {"http://localhost:4200"})
 @AllArgsConstructor
 @RequestMapping("api/users")
 @RestController
