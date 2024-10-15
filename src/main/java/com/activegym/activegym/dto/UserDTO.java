@@ -14,8 +14,8 @@ public class UserDTO {
     private String phone;
     private String email;
     private LocalDate dateOfBirth;
-    private String gender;
-    private String eps;
-    private String bloodType;
-    private String bloodRh;
+    private String genderName;
+    private String epsName;
+    private String bloodTypeName;
+    private String bloodRhName;
 }

@@ -23,13 +23,13 @@ public class AuxiliarFields {
     private final GenderRepository genderRepository;
 
     public void castUserAuxiliarFields(UserDTO userDTO, User user) {
-        Eps eps = epsRepository.findByEpsName(userDTO.getEps())
+        Eps eps = epsRepository.findByEpsName(userDTO.getEpsName())
                 .orElseThrow(() -> new RuntimeException("EPS no encontrado"));
-        BloodType bloodType = bloodTypeRepository.findByBloodTypeName(userDTO.getBloodType())
+        BloodType bloodType = bloodTypeRepository.findByBloodTypeName(userDTO.getBloodTypeName())
                 .orElseThrow(() -> new RuntimeException("Tipo de sangre no encontrado"));
-        BloodRh bloodRh = bloodRhRepository.findByBloodRh(userDTO.getBloodRh())
+        BloodRh bloodRh = bloodRhRepository.findByBloodRh(userDTO.getBloodRhName())
                 .orElseThrow(() -> new RuntimeException("Factor Rh no encontrado"));
-        Gender gender = genderRepository.findByGenderName(userDTO.getGender())
+        Gender gender = genderRepository.findByGenderName(userDTO.getGenderName())
                 .orElseThrow(() -> new RuntimeException("Género no encontrado"));
 
         user.setEps(eps);

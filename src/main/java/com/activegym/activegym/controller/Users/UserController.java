@@ -1,11 +1,13 @@
 package com.activegym.activegym.controller.Users;
 
+import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.dto.UserDTO;
 import com.activegym.activegym.dto.UserResponseDTO;
 import com.activegym.activegym.model.Users.User;
 import com.activegym.activegym.service.Users.UserService;
 import com.activegym.activegym.util.ConvertToResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +31,7 @@ public class UserController {
 
     private final UserService userService; // Injected by Lombok
     private final ConvertToResponse convertToResponse; // Injected by Lombok
+    private final ResponseStatusMessage responseStatusMessage; // Injected by Lombok
 
     // Management endpoints (for ADMINISTRADOR and ASESOR roles)
 
@@ -54,37 +57,41 @@ public class UserController {
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @PutMapping("/{document}")
-    public ResponseEntity<String> updateBasicInfo(@PathVariable("document") String document, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<ResponseStatusMessage> updateBasicInfo(@PathVariable("document") String document, @RequestBody UserDTO userDTO) {
         userService.updateBasicInfo(document, userDTO);
-        return ResponseEntity.status(HttpStatus.OK).body("Basic info updated");
+        responseStatusMessage.setMessage("Basic info updated");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
 
     // Role management endpoints (for ADMINISTRADOR role)
 
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @PostMapping("/{document}/roles")
-    public ResponseEntity<String> addRole(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
+    public ResponseEntity<ResponseStatusMessage> addRole(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
         String roleName = request.get("roleName");
         userService.addRole(document, roleName);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Role added to user");
+        responseStatusMessage.setMessage("Role added to user");
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseStatusMessage);
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @DeleteMapping("/{document}/roles")
-    public ResponseEntity<String> removeRole(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
+    public ResponseEntity<ResponseStatusMessage> removeRole(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
 
         String roleName = request.get("roleName");
         userService.removeRole(document, roleName);
-        return ResponseEntity.status(HttpStatus.OK).body("Role removed from user");
+        responseStatusMessage.setMessage("Role removed from user");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
 
     }
 
     // Other ADMINISTRADOR endpoints
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @DeleteMapping("/{document}")
-    public ResponseEntity<String> delete(@PathVariable("document") String document) {
+    public ResponseEntity<ResponseStatusMessage> delete(@PathVariable("document") String document) {
         userService.delete(document);
-        return ResponseEntity.status(HttpStatus.OK).body("User deleted");
+        responseStatusMessage.setMessage("User deleted");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
 
     // User endpoints
