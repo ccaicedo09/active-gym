@@ -64,10 +64,6 @@ public class UserService {
                 .findByDocument(document)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        if(userDTO.getEmail() != null && !userDTO.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new DataIntegrityViolationException("El correo ya está registrado (unique)");
-        }
-
         if (userDTO.getDocument() != null) user.setDocument(userDTO.getDocument());
         if (userDTO.getFirstName() != null) user.setFirstName(userDTO.getFirstName());
         if (userDTO.getLastName() != null) user.setLastName(userDTO.getLastName());
