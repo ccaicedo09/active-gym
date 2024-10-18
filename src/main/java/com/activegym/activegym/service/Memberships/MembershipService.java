@@ -69,7 +69,7 @@ public class MembershipService {
         User soldBy = userRepository.findByDocument(sellerDocument)
                 .orElseThrow(() -> new RuntimeException("User (seller) not found"));
 
-        MembershipType membershipType = membershipTypeRepository.findByName(membershipDTO.getMembershipTypeName())
+        MembershipType membershipType = membershipTypeRepository.findByName(membershipDTO.getMembershipType())
                 .orElseThrow(() -> new RuntimeException("Membership type not found"));
 
         MembershipStatus membershipStatus = membershipStatusRepository.findByDescription("ACTIVA") // Should be changed by scheduled task
