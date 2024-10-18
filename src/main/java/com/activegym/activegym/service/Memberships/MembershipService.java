@@ -47,10 +47,6 @@ public class MembershipService {
 
         List<Membership> memberships = membershipRepository.findAllByUserIdOrderByEndDateDesc(user);
 
-        if (memberships.isEmpty()) {
-            throw new RuntimeException("User has no memberships");
-        }
-
         return memberships.stream()
                 .map(ConvertToResponse::convertToMembershipResponseDTO)
                 .toList();

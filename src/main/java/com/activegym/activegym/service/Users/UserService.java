@@ -11,6 +11,7 @@ import com.activegym.activegym.util.AuxiliarFields;
 import com.activegym.activegym.util.ConvertToResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -62,6 +63,10 @@ public class UserService {
         User user = userRepository
                 .findByDocument(document)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        if(userDTO.getEmail() != null && !userDTO.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new DataIntegrityViolationException("El correo ya está registrado (unique)");
+        }
 
         if (userDTO.getDocument() != null) user.setDocument(userDTO.getDocument());
         if (userDTO.getFirstName() != null) user.setFirstName(userDTO.getFirstName());

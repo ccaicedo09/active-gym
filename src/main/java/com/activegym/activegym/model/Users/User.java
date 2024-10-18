@@ -44,6 +44,8 @@ public class User implements UserDetails {
     private String firstName;
     private String lastName;
     private String phone;
+
+    @Column(unique = true, nullable = false)
     private String email;
     private String password;
     private LocalDate dateOfBirth;
