@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class MembershipResponseDTO {
     private Long id;
     private String userDocument;
-    private String membershipType;
+    private String membershipTypeName;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate saleDate;

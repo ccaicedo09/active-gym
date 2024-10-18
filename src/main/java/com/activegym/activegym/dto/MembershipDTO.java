@@ -9,6 +9,6 @@ import java.time.LocalDate;
 @Setter
 public class MembershipDTO {
     private String userDocument;
-    private String membershipTypeName;
+    private String membershipType;
     private LocalDate startDate;
 }

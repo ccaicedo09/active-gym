@@ -41,7 +41,7 @@ public class ConvertToResponse {
         MembershipResponseDTO dto = new MembershipResponseDTO();
         dto.setId(membership.getId());
         dto.setUserDocument(membership.getUserId().getDocument());
-        dto.setMembershipType(membership.getMembershipType().getName());
+        dto.setMembershipTypeName(membership.getMembershipType().getName());
         dto.setStartDate(membership.getStartDate());
         dto.setEndDate(membership.getEndDate());
         dto.setSaleDate(membership.getSaleDate());
