@@ -1,5 +1,6 @@
 package com.activegym.activegym.security.jwt;
 
+import com.activegym.activegym.model.Roles.Role;
 import com.activegym.activegym.model.Users.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -34,15 +35,16 @@ public class JwtService {
 
         User customUser = (User) user;
         String document = customUser.getDocument();
+        String userName = customUser.getFirstName();
 
         return Jwts
                 .builder()
                 .claims(extraClaims)
-                .claim("authorities", authorities)
                 .claim("document", document)
+                .claim("userName", userName)
                 .subject(user.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -68,6 +70,10 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public String extractUserName(String token) {
+        return getAllClaims(token).get("userName", String.class);
     }
 
     public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
