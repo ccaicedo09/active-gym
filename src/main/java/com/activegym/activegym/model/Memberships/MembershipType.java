@@ -36,4 +36,8 @@ public class MembershipType {
     @JsonProperty("isFreezable")
     private boolean isFreezable;
 
+    @JsonProperty("isVisible")
+    @Column(name = "is_visible")
+    private boolean isVisible;
+
 }
