@@ -12,6 +12,8 @@ import com.activegym.activegym.util.ConvertToResponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +31,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
-    public Iterable<UserResponseDTO> findAll() {
-        return userRepository.findAll().stream()
-                .peek(ageCalculator::setAge)
-                .map(userResponse::convertToResponseDTO)
-                .collect(Collectors.toSet());
+    public Page<UserResponseDTO> findAll(int page, int size) {
+
+        PageRequest pageable = PageRequest.of(page, size);
+
+        return userRepository.findAll(pageable)
+                .map(user -> {
+                    ageCalculator.setAge(user);
+                    return userResponse.convertToResponseDTO(user);
+                });
     }
 
     public UserResponseDTO findByDocument(String document) {

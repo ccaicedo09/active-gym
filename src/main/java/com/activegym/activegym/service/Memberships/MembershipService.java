@@ -14,6 +14,8 @@ import com.activegym.activegym.util.ConvertToResponse;
 import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +34,11 @@ public class MembershipService {
     private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
 
     // Returns all memberships, ordered by end date
-    public List<MembershipResponseDTO> getAllMemberships() {
-        List<Membership> memberships = membershipRepository.findAll(Sort.by(Sort.Direction.DESC, "endDate"));
+    public Page<MembershipResponseDTO> getAllMemberships(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "endDate"));
 
-        return memberships.stream()
-                .map(ConvertToResponse::convertToMembershipResponseDTO)
-                .toList();
+        return membershipRepository.findAll(pageable)
+                .map(ConvertToResponse::convertToMembershipResponseDTO);
     }
 
     // Returns all memberships of a user, ordered by end date (active membership first)
