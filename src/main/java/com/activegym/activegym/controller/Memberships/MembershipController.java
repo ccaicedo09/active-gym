@@ -6,6 +6,8 @@ import com.activegym.activegym.dto.MembershipTypeDTO;
 import com.activegym.activegym.model.Memberships.MembershipType;
 import com.activegym.activegym.service.Memberships.MembershipService;
 import com.activegym.activegym.service.Memberships.MembershipTypeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequestMapping("api/memberships")
 @RestController
+@Tag(name = "Memberships", description = "Memberships endpoints")
 public class MembershipController {
 
     private final MembershipService membershipService;
@@ -32,6 +35,7 @@ public class MembershipController {
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping
+    @Operation(summary = "MANAGEMENT: Get all memberships", description = "Get all memberships including all of the statuses and using pagination")
     public ResponseEntity<Page<MembershipResponseDTO>> getAllMemberships(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -42,6 +46,7 @@ public class MembershipController {
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping("/{document}")
+    @Operation(summary = "MANAGEMENT: Get user memberships", description = "Get all memberships of a user")
     public ResponseEntity<List<MembershipResponseDTO>> getUserMemberships(@PathVariable("document") String document) {
 
         List<MembershipResponseDTO> memberships = membershipService.getUserMemberships(document);
@@ -51,6 +56,7 @@ public class MembershipController {
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @PostMapping
+    @Operation(summary = "MANAGEMENT: Create a new membership", description = "Create a new membership for a user")
     public MembershipResponseDTO create(@RequestBody MembershipDTO membershipDTO) {
         return membershipService.create(membershipDTO);
     }
@@ -59,11 +65,13 @@ public class MembershipController {
 
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @PostMapping("/types/create")
+    @Operation(summary = "ADMIN: Create membership type", description = "Create a new membership type")
     public MembershipType create(@RequestBody MembershipTypeDTO membershipTypeDTO) {
         return membershipTypeService.create(membershipTypeDTO);
     }
 
     @GetMapping("/public/types")
+    @Operation(summary = "PUBLIC: List membership types", description = "List all membership types")
     public Iterable<MembershipType> list() {
         return membershipTypeService.findAll();
     }

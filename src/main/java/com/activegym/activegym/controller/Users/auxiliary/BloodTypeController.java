@@ -3,10 +3,11 @@ package com.activegym.activegym.controller.Users.auxiliary;
 
 import com.activegym.activegym.model.Users.auxiliary.BloodType;
 import com.activegym.activegym.service.Users.auxiliary.BloodTypeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,11 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/bloodtype")
+@Tag(name = "BloodType", description = "Controller for fetching auxiliary data about Users")
 public class BloodTypeController {
 
     private final BloodTypeService bloodTypeService;
 
     @GetMapping
+    @Operation(summary = "Get all blood types")
     public Iterable<BloodType> list() {
         return bloodTypeService.findAll();
     }

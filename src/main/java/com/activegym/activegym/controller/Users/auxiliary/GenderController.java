@@ -3,6 +3,8 @@ package com.activegym.activegym.controller.Users.auxiliary;
 
 import com.activegym.activegym.model.Users.auxiliary.Gender;
 import com.activegym.activegym.service.Users.auxiliary.GenderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/genders")
 @RestController
+@Tag(name = "Genders", description = "Controller for fetching auxiliary data about Users")
 public class GenderController {
 
     private final GenderService genderService; // Injected by Lombok
 
     @GetMapping
+    @Operation(summary = "Get all genders")
     public Iterable<Gender> list() {
         return genderService.findAll();
     }
