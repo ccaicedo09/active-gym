@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -40,6 +41,13 @@ public class UserService {
                     ageCalculator.setAge(user);
                     return userResponse.convertToResponseDTO(user);
                 });
+    }
+
+    public List<UserResponseDTO> getTeamMembersByRoles() {
+        List<String> roles = List.of("ADMINISTRADOR", "ASESOR", "ENTRENADOR", "PERSONAL DE ASEO");
+        return userRepository.findByRolesIn(roles).stream()
+                .map(userResponse::convertToResponseDTO)
+                .toList();
     }
 
     public UserResponseDTO findByDocument(String document) {

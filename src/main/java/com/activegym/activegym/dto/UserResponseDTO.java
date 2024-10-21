@@ -21,5 +21,5 @@ public class UserResponseDTO {
     private String bloodTypeName;
     private String bloodRhName;
     private int age;
-    private Set<RoleDTO> roles;
+    private Set<String> roles;
 }

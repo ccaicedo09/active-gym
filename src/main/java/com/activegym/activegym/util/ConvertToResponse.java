@@ -4,6 +4,7 @@ import com.activegym.activegym.dto.MembershipResponseDTO;
 import com.activegym.activegym.dto.RoleDTO;
 import com.activegym.activegym.dto.UserResponseDTO;
 import com.activegym.activegym.model.Memberships.Membership;
+import com.activegym.activegym.model.Roles.Role;
 import com.activegym.activegym.model.Users.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,11 +30,10 @@ public class ConvertToResponse {
         dto.setEpsName(user.getEps().getEpsName());
         dto.setBloodTypeName(user.getBloodType().getBloodTypeName());
         dto.setBloodRhName(user.getBloodRh().getBloodRh());
-        Set<RoleDTO> roleDTOs = user.getRoles().stream()
-                .map(role -> new RoleDTO(role.getId(), role.getRoleName()))
-                .collect(Collectors.toSet());
-        dto.setRoles(roleDTOs);
-
+        Set<String> roleNames = user.getRoles().stream()
+                        .map(Role::getRoleName)
+                        .collect(Collectors.toSet());
+        dto.setRoles(roleNames);
         return dto;
     }
 

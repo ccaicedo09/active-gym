@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = {"http://localhost:4200"})
@@ -87,6 +88,13 @@ public class UserController {
         responseStatusMessage.setMessage("Role removed from user");
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
 
+    }
+
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
+    @GetMapping("/team")
+    public ResponseEntity<List<UserResponseDTO>> getTeamMembers() {
+        List<UserResponseDTO> teamMembers = userService.getTeamMembersByRoles();
+        return ResponseEntity.ok(teamMembers);
     }
 
     // Other ADMINISTRADOR endpoints
