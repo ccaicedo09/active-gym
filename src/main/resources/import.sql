@@ -1,28 +1,3 @@
-CREATE TABLE IF NOT EXISTS genders (
-    id SERIAL PRIMARY KEY,
-    gender_name VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS eps (
-  id SERIAL PRIMARY KEY,
-  eps_name VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS blood_type (
-    id SERIAL PRIMARY KEY,
-    blood_type_name VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS blood_rh (
-    id SERIAL PRIMARY KEY,
-    blood_rh VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE IF NOT EXISTS membership_status (
-    id SERIAL PRIMARY KEY,
-    description VARCHAR(255) NOT NULL UNIQUE
-);
-
 -- Data for gender entity
 INSERT INTO genders (gender_name) VALUES ('Masculino') ON CONFLICT (gender_name) DO NOTHING;
 INSERT INTO genders (gender_name) VALUES ('Femenino') ON CONFLICT (gender_name) DO NOTHING;
