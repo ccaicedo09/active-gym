@@ -118,12 +118,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
 
-    @PostMapping("/public/create-admin")
-    public ResponseEntity<UserResponseDTO> createAdmin(@RequestBody AdminDTO adminDTO) {
-        User admin = userService.createAdmin(adminDTO);
-        UserResponseDTO responseDTO = convertToResponse.convertToResponseDTO(admin);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
-    }
+//    @PostMapping("/public/create-admin")
+//    public ResponseEntity<UserResponseDTO> createAdmin(@RequestBody AdminDTO adminDTO) {
+//        User admin = userService.createAdmin(adminDTO);
+//        UserResponseDTO responseDTO = convertToResponse.convertToResponseDTO(admin);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+//    }
 
     // User endpoints
 
