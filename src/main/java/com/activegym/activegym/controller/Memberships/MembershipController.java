@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin(origins = {"http://localhost:4200"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://activegym.vercel.app/"})
 @AllArgsConstructor
 @RequestMapping("api/memberships")
 @RestController

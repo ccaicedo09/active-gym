@@ -74,15 +74,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User createAdmin(AdminDTO adminDTO) {
-        User user = mapper.map(adminDTO, User.class);
-        auxiliarFields.castAdminAuxiliarFields(adminDTO, user);
-        user.setPassword(passwordEncoder.encode(adminDTO.getPassword()));
-        Role defaultRole = roleRepository.findByRoleName("ADMINISTRADOR")
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-        user.getRoles().add(defaultRole);
-        return userRepository.save(user);
-    }
+//    public User createAdmin(AdminDTO adminDTO) {
+//        User user = mapper.map(adminDTO, User.class);
+//        auxiliarFields.castAdminAuxiliarFields(adminDTO, user);
+//        user.setPassword(passwordEncoder.encode(adminDTO.getPassword()));
+//        Role defaultRole = roleRepository.findByRoleName("ADMINISTRADOR")
+//                .orElseThrow(() -> new RuntimeException("Role not found"));
+//        user.getRoles().add(defaultRole);
+//        return userRepository.save(user);
+//    }
 
     public void updateBasicInfo(String document, UserDTO userDTO) {
         User user = userRepository
