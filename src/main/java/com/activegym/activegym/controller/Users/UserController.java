@@ -1,5 +1,6 @@
 package com.activegym.activegym.controller.Users;
 
+import com.activegym.activegym.dto.AdminDTO;
 import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.dto.UserDTO;
 import com.activegym.activegym.dto.UserResponseDTO;
@@ -115,6 +116,13 @@ public class UserController {
         userService.delete(document);
         responseStatusMessage.setMessage("User deleted");
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
+    }
+
+    @PostMapping("/public/create-admin")
+    public ResponseEntity<UserResponseDTO> createAdmin(@RequestBody AdminDTO adminDTO) {
+        User admin = userService.createAdmin(adminDTO);
+        UserResponseDTO responseDTO = convertToResponse.convertToResponseDTO(admin);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     // User endpoints

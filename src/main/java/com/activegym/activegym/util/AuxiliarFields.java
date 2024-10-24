@@ -1,5 +1,6 @@
 package com.activegym.activegym.util;
 
+import com.activegym.activegym.dto.AdminDTO;
 import com.activegym.activegym.dto.UserDTO;
 import com.activegym.activegym.model.Users.auxiliary.BloodRh;
 import com.activegym.activegym.model.Users.auxiliary.BloodType;
@@ -36,5 +37,21 @@ public class AuxiliarFields {
         user.setBloodType(bloodType);
         user.setBloodRh(bloodRh);
         user.setGender(gender);
+    }
+
+    public void castAdminAuxiliarFields(AdminDTO adminDTO, User admin) {
+        Eps eps = epsRepository.findByEpsName(adminDTO.getEpsName())
+                .orElseThrow(() -> new RuntimeException("EPS no encontrado"));
+        BloodType bloodType = bloodTypeRepository.findByBloodTypeName(adminDTO.getBloodTypeName())
+                .orElseThrow(() -> new RuntimeException("Tipo de sangre no encontrado"));
+        BloodRh bloodRh = bloodRhRepository.findByBloodRh(adminDTO.getBloodRhName())
+                .orElseThrow(() -> new RuntimeException("Factor Rh no encontrado"));
+        Gender gender = genderRepository.findByGenderName(adminDTO.getGenderName())
+                .orElseThrow(() -> new RuntimeException("Género no encontrado"));
+
+        admin.setEps(eps);
+        admin.setBloodType(bloodType);
+        admin.setBloodRh(bloodRh);
+        admin.setGender(gender);
     }
 }
