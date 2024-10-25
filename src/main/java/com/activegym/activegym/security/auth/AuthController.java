@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:4200"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://activegym.vercel.app/"})
 @Tag(name = "Auth", description = "Authentication management")
 public class AuthController {
 
