@@ -7,6 +7,7 @@ import com.activegym.activegym.model.Roles.Role;
 import com.activegym.activegym.model.Users.User;
 import com.activegym.activegym.repository.Roles.RoleRepository;
 import com.activegym.activegym.repository.Users.UserRepository;
+import com.activegym.activegym.security.auth.AuthService;
 import com.activegym.activegym.util.AgeCalculator;
 import com.activegym.activegym.util.AuxiliarFields;
 import com.activegym.activegym.util.ConvertToResponse;
@@ -15,9 +16,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,12 +35,23 @@ public class UserService {
     private final ConvertToResponse userResponse;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final AuthService authService;
 
     public Page<UserResponseDTO> findAll(int page, int size) {
 
         PageRequest pageable = PageRequest.of(page, size);
 
         return userRepository.findAll(pageable)
+                .map(user -> {
+                    ageCalculator.setAge(user);
+                    return userResponse.convertToResponseDTO(user);
+                });
+    }
+
+    public Page<UserResponseDTO> findUsersWithOnlyMemberRole(int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+
+        return userRepository.findUsersWithOnlyMemberRole(pageable)
                 .map(user -> {
                     ageCalculator.setAge(user);
                     return userResponse.convertToResponseDTO(user);
@@ -51,10 +65,20 @@ public class UserService {
                 .toList();
     }
 
-    public UserResponseDTO findByDocument(String document) {
+    public UserResponseDTO findByDocument(String document) throws AccessDeniedException {
         User user = userRepository
                 .findByDocument(document)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        List<String> requestUserRoles = authService.getUserRoles();
+        List<String> targetUserRoles = user.getRoles().stream()
+                .map(Role::getRoleName)
+                .toList();
+        List<String> restrictedRoles = List.of("ADMINISTRADOR", "ASESOR", "ENTRENADOR", "PERSONAL DE ASEO");
+
+        if (!requestUserRoles.contains("ADMINISTRADOR") && targetUserRoles.stream().anyMatch(restrictedRoles::contains)) {
+            throw new AccessDeniedException("");
+        }
         ageCalculator.setAge(user);
         return userResponse.convertToResponseDTO(user);
     }
@@ -134,5 +158,25 @@ public class UserService {
         }
 
         userRepository.save(user);
+    }
+
+    public void adminChangePassword(String document, String newPassword) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public void userChangePassword(String document, String oldPassword, String newPassword) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Old password is incorrect");
+        }
     }
 }

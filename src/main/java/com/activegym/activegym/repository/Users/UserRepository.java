@@ -15,6 +15,10 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findAll(Pageable pageable);
 
+    @Query("SELECT u FROM User u JOIN u.roles r " +
+            "WHERE r.roleName = 'MIEMBRO' AND SIZE(u.roles) = 1")
+    Page<User> findUsersWithOnlyMemberRole(Pageable pageable);
+
     Optional<User> findByDocument(String document);
 
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.roleName IN (:roles)")

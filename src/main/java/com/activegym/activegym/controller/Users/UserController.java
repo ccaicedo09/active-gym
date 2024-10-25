@@ -5,8 +5,10 @@ import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.dto.UserDTO;
 import com.activegym.activegym.dto.UserResponseDTO;
 import com.activegym.activegym.model.Users.User;
+import com.activegym.activegym.security.auth.AuthService;
 import com.activegym.activegym.service.Users.UserService;
 import com.activegym.activegym.util.ConvertToResponse;
+import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -38,23 +43,29 @@ public class UserController {
     private final UserService userService; // Injected by Lombok
     private final ConvertToResponse convertToResponse; // Injected by Lombok
     private final ResponseStatusMessage responseStatusMessage; // Injected by Lombok
+    private final AuthService authService; // Injected by Lombok
+    private final ExtractCurrentSessionDocument extractCurrentSessionDocument; // Injected by Lombok
 
     // Management endpoints (for ADMINISTRADOR and ASESOR roles)
 
-    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR', 'ENTRENADOR')")
     @GetMapping
     @Operation(summary = "MANAGEMENT: List all users", description = "List all users with pagination included, authorized for ADMINISTRADOR and ASESOR roles")
     public ResponseEntity<Page<UserResponseDTO>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<UserResponseDTO> users = userService.findAll(page, size);
-        return ResponseEntity.ok(users);
+
+        if (authService.getUserRoles().contains("ADMINISTRADOR")) {
+            return ResponseEntity.ok(userService.findAll(page, size));
+        } else {
+            return ResponseEntity.ok(userService.findUsersWithOnlyMemberRole(page, size));
+        }
     }
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping("/{document}")
     @Operation(summary = "MANAGEMENT: Get user by document", description = "Get user by their document, authorized for ADMINISTRADOR and ASESOR roles")
-    public UserResponseDTO get(@PathVariable("document") String document) {
+    public UserResponseDTO get(@PathVariable("document") String document) throws AccessDeniedException {
         return userService.findByDocument(document);
     }
 
@@ -125,6 +136,26 @@ public class UserController {
 //        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
 //    }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR')")
+    @PutMapping("/{document}/change-password")
+    @Operation(summary = "ADMIN: Change user password", description = "Change user password by their document, expecting a password in the body, authorized for ADMINISTRADOR role")
+    public ResponseEntity<ResponseStatusMessage> changePassword(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
+        String password = request.get("password");
+        userService.adminChangePassword(document, password);
+        responseStatusMessage.setMessage("Password changed");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
+    }
+
     // User endpoints
+    @PutMapping("/change-password")
+    @Operation(summary = "Change user password", description = "Change user password, expecting a password in the body, authorized for all roles")
+    public ResponseEntity<ResponseStatusMessage> changePassword(@RequestBody Map<String, String> request) {
+        String document = extractCurrentSessionDocument.extractDocument();
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+        userService.userChangePassword(document, oldPassword, newPassword);
+        responseStatusMessage.setMessage("Password changed");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
+    }
 
 }
