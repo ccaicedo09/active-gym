@@ -29,4 +29,16 @@ public class MembershipTypeService {
         MembershipType membershipType = mapper.map(membershipTypeDTO, MembershipType.class);
         return membershipTypeRepository.save(membershipType);
     }
+
+    public MembershipType edit(Long id, MembershipTypeDTO membershipTypeDTO) {
+        MembershipType membershipType = findById(id);
+        mapper.map(membershipTypeDTO, membershipType);
+        return membershipTypeRepository.save(membershipType);
+    }
+
+    public void toggleVisibility(Long id) {
+        MembershipType membershipType = findById(id);
+        membershipType.setVisible(!membershipType.isVisible());
+        membershipTypeRepository.save(membershipType);
+    }
 }
