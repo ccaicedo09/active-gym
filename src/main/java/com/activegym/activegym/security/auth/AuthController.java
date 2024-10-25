@@ -44,10 +44,7 @@ public class AuthController {
     @GetMapping("/roles")
     @Operation(summary = "AUTH: Get user roles", description = "Fetch the roles of the current user")
     public List<String> getUserRoles() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+        return authService.getUserRoles();
     }
 
 }

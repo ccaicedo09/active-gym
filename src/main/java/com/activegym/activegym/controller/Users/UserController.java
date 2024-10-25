@@ -5,6 +5,7 @@ import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.dto.UserDTO;
 import com.activegym.activegym.dto.UserResponseDTO;
 import com.activegym.activegym.model.Users.User;
+import com.activegym.activegym.security.auth.AuthService;
 import com.activegym.activegym.service.Users.UserService;
 import com.activegym.activegym.util.ConvertToResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 
@@ -38,23 +40,28 @@ public class UserController {
     private final UserService userService; // Injected by Lombok
     private final ConvertToResponse convertToResponse; // Injected by Lombok
     private final ResponseStatusMessage responseStatusMessage; // Injected by Lombok
+    private final AuthService authService; // Injected by Lombok
 
     // Management endpoints (for ADMINISTRADOR and ASESOR roles)
 
-    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR', 'ENTRENADOR')")
     @GetMapping
     @Operation(summary = "MANAGEMENT: List all users", description = "List all users with pagination included, authorized for ADMINISTRADOR and ASESOR roles")
     public ResponseEntity<Page<UserResponseDTO>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<UserResponseDTO> users = userService.findAll(page, size);
-        return ResponseEntity.ok(users);
+
+        if (authService.getUserRoles().contains("ADMINISTRADOR")) {
+            return ResponseEntity.ok(userService.findAll(page, size));
+        } else {
+            return ResponseEntity.ok(userService.findUsersWithOnlyMemberRole(page, size));
+        }
     }
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping("/{document}")
     @Operation(summary = "MANAGEMENT: Get user by document", description = "Get user by their document, authorized for ADMINISTRADOR and ASESOR roles")
-    public UserResponseDTO get(@PathVariable("document") String document) {
+    public UserResponseDTO get(@PathVariable("document") String document) throws AccessDeniedException {
         return userService.findByDocument(document);
     }
 
