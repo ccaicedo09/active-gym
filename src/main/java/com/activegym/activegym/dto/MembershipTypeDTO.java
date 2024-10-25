@@ -18,4 +18,7 @@ public class MembershipTypeDTO {
 
     @JsonProperty("isFreezable")
     private boolean isFreezable;
+
+    @JsonProperty("isVisible")
+    private boolean isVisible;
 }
