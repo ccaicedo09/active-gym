@@ -159,4 +159,24 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    public void adminChangePassword(String document, String newPassword) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public void userChangePassword(String document, String oldPassword, String newPassword) {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+        if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Old password is incorrect");
+        }
+    }
 }
