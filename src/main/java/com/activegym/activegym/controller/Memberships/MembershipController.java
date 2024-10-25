@@ -80,7 +80,7 @@ public class MembershipController {
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
-    @PatchMapping("/types/edit/{id}")
+    @PutMapping("/types/edit/{id}")
     @Operation(summary = "ADMIN: Edit membership type", description = "Edit a membership type")
     public MembershipType edit(@PathVariable("id") Long id, @RequestBody MembershipTypeDTO membershipTypeDTO) {
         return membershipTypeService.edit(id, membershipTypeDTO);
