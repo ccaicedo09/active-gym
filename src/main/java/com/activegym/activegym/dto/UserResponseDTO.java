@@ -6,6 +6,14 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.Set;
 
+/**
+ * Data Transfer Object for user response data.
+ * This DTO is used to represent the user information returned in API responses,
+ * including basic user details, the user's age and roles.
+ *
+ * @since v1.0
+ * @author Carlos Esteban Castro Caicedo
+ */
 @Getter
 @Setter
 public class UserResponseDTO {

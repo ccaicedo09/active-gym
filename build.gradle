@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.activegym'
-version = '0.0.1-SNAPSHOT'
+version = 'v1.2'
 
 java {
 	toolchain {
@@ -37,8 +37,12 @@ dependencies {
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
 	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
+// https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java
+	implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '3.0.2'
+}
 
-
+javadoc {
+	destinationDir = file("${buildDir}/docs/javadoc")
 }
 
 tasks.named('test') {
