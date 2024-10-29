@@ -2,6 +2,7 @@ package com.activegym.activegym.service.Memberships;
 
 import com.activegym.activegym.dto.MembershipDTO;
 import com.activegym.activegym.dto.MembershipResponseDTO;
+import com.activegym.activegym.dto.MembershipSalesDTO;
 import com.activegym.activegym.exceptions.MembershipStatusNotFoundException;
 import com.activegym.activegym.exceptions.MembershipTypeNotFoundException;
 import com.activegym.activegym.exceptions.UserNotFoundException;
@@ -128,5 +129,40 @@ public class MembershipService {
         Membership savedMembership = membershipRepository.save(membership);
 
         return ConvertToResponse.convertToMembershipResponseDTO(savedMembership);
+    }
+
+    /**
+     * Retrieves a list containing the count of sales per membership type in a specific month and year.
+     * @param month the month to be consulted.
+     * @param year the year to be consulted.
+     * @return a list of {@link MembershipSalesDTO} containing the membership type and the number of memberships sold.
+     */
+    public List<MembershipSalesDTO> getTopSoldMemberships(int month, int year) {
+        return membershipRepository.countMembershipsByTypeAndMonth(month, year);
+    }
+
+    /**
+     * Retrieves the total number of memberships sold in a specific month and year.
+     * @param month the month to be consulted.
+     * @param year the year to be consulted.
+     * @return the total number of memberships sold in the given month and year.
+     */
+    public Long getTotalMembershipsSold(int month, int year) {
+        return membershipRepository.countMembershipsByMonthAndYear(month, year);
+    }
+
+    /**
+     * Retrieves the total earnings from memberships sold in a specific month and year.
+     * @param month the month to be consulted.
+     * @param year the year to be consulted.
+     * @return the total earnings from memberships sold in the given month and year.
+     */
+    public Double getTotalEarnings(int month, int year) {
+        Double totalEarnings = membershipRepository.calculateTotalEarningsByMonthAndYear(month, year);
+        return totalEarnings != null ? totalEarnings : 0.0;
+    }
+
+    public Long getActiveMembershipsCount() {
+        return membershipRepository.countActiveMemberships();
     }
 }

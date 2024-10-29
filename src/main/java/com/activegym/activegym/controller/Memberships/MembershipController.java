@@ -2,6 +2,7 @@ package com.activegym.activegym.controller.Memberships;
 
 import com.activegym.activegym.dto.MembershipDTO;
 import com.activegym.activegym.dto.MembershipResponseDTO;
+import com.activegym.activegym.dto.MembershipSalesDTO;
 import com.activegym.activegym.dto.MembershipTypeDTO;
 import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.model.Memberships.MembershipType;
@@ -99,4 +100,40 @@ public class MembershipController {
         return membershipTypeService.findAll();
     }
 
+
+    // Analytics endpoints
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @GetMapping("/top-sold")
+    @Operation(summary = "MANAGEMENT: get the count of all membership types sold", description = "Get the count of all membership types sold in a specific month and year")
+    public ResponseEntity<List<MembershipSalesDTO>> getTopSoldMemberships(@RequestParam int month, @RequestParam int year) {
+        List<MembershipSalesDTO> sales = membershipService.getTopSoldMemberships(month, year);
+        return ResponseEntity.ok(sales);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @GetMapping("/total-sales")
+    @Operation(summary = "MANAGEMENT: get the total memberships sold", description = "Get the total memberships sold in a specific month and year")
+    public ResponseEntity<Long> getTotalMembershipsSold(
+            @RequestParam int month, @RequestParam int year) {
+        Long totalSold = membershipService.getTotalMembershipsSold(month, year);
+        return ResponseEntity.ok(totalSold);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @GetMapping("/total-earnings")
+    @Operation(summary = "MANAGEMENT: get the total earnings", description = "Get the total earnings from memberships sold in a specific month and year")
+    public ResponseEntity<Double> getTotalEarnings(@RequestParam int month, @RequestParam int year) {
+        Double totalEarnings = membershipService.getTotalEarnings(month, year);
+        return ResponseEntity.ok(totalEarnings);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @GetMapping("/active-count")
+    @Operation(summary = "MANAGEMENT: get the count of active memberships", description = "Get the count of active memberships. Use this one for indicating the amount of active members!")
+    public ResponseEntity<Long> getActiveMembershipsCount() {
+        Long activeMemberships = membershipService.getActiveMembershipsCount();
+        return ResponseEntity.ok(activeMemberships);
+    }
+    
 }
