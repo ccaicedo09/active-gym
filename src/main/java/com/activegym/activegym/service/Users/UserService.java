@@ -285,4 +285,12 @@ public class UserService {
             throw new BadCredentialsException("");
         }
     }
+
+    /**
+     * Counts the number of users created in the last week.
+     * @return the number of users created in the last week.
+     */
+    public Long countUsersCreatedLastWeek() {
+        return userRepository.countUsersCreatedInLastWeek();
+    }
 }

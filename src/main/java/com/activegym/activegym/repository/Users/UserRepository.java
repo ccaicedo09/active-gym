@@ -67,4 +67,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmail(String email);
 
+
+    /**
+     * Counts the number of users created in the last week.
+     * Uses a JPQL query to count the number of users whose creation date is within the last 7 days.
+     *
+     * @return the number of users created in the last week.
+     */
+    @Query(value = "SELECT COUNT(*) FROM users WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'", nativeQuery = true)
+    Long countUsersCreatedInLastWeek();
 }

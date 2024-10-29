@@ -84,6 +84,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @GetMapping("/recent-count")
+    @Operation(summary = "MANAGEMENT: Get recent users count", description = "Get the count of users created in the last 30 days, authorized for ADMINISTRADOR and ASESOR roles")
+    public ResponseEntity<Long> getRecentUsersCount() {
+        return ResponseEntity.ok(userService.countUsersCreatedLastWeek());
+    }
+
     // Role management endpoints (for ADMINISTRADOR role)
 
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
