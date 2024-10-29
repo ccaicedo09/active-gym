@@ -202,4 +202,9 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    /**
+     * The date when the user was created.
+     */
+    private LocalDate createdAt;
 }

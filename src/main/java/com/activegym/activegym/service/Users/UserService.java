@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -144,6 +145,9 @@ public class UserService {
         auxiliarFields.castUserAuxiliarFields(userDTO, user);
 
         String defaultPassword = userDTO.getDocument();
+
+        LocalDate now = LocalDate.now();
+        user.setCreatedAt(now);
 
         user.setPassword(passwordEncoder.encode(defaultPassword)); // Default password, should be changed by User
         Role defaultRole = roleRepository.findByRoleName("MIEMBRO")
