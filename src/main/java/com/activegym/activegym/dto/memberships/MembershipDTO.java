@@ -1,4 +1,4 @@
-package com.activegym.activegym.dto;
+package com.activegym.activegym.dto.memberships;
 
 import lombok.Getter;
 import lombok.Setter;

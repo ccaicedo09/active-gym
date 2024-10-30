@@ -1,7 +1,7 @@
 package com.activegym.activegym.util;
 
-import com.activegym.activegym.dto.MembershipResponseDTO;
-import com.activegym.activegym.dto.UserResponseDTO;
+import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
+import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.model.Memberships.Membership;
 import com.activegym.activegym.model.Roles.Role;
 import com.activegym.activegym.model.Users.User;

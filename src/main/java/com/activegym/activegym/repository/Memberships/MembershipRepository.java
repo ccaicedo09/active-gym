@@ -1,6 +1,6 @@
 package com.activegym.activegym.repository.Memberships;
 
-import com.activegym.activegym.dto.MembershipSalesDTO;
+import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
 import com.activegym.activegym.model.Memberships.Membership;
 import com.activegym.activegym.model.Memberships.MembershipStatus;
 import com.activegym.activegym.model.Users.User;
@@ -54,7 +54,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
      * @param year the year to be consulted.
      * @return a list of {@link MembershipSalesDTO} containing the membership type and the number of memberships sold.
      */
-    @Query("SELECT new com.activegym.activegym.dto.MembershipSalesDTO(mt.name, COUNT(m.id)) " +
+    @Query("SELECT new com.activegym.activegym.dto.memberships.MembershipSalesDTO(mt.name, COUNT(m.id)) " +
             "FROM Membership m JOIN m.membershipType mt " +
             "WHERE EXTRACT(MONTH FROM m.saleDate) = :month " +
             "AND EXTRACT(YEAR FROM m.saleDate) = :year " +

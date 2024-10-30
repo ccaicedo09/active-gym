@@ -1,8 +1,8 @@
 package com.activegym.activegym.service.Memberships;
 
-import com.activegym.activegym.dto.MembershipDTO;
-import com.activegym.activegym.dto.MembershipResponseDTO;
-import com.activegym.activegym.dto.MembershipSalesDTO;
+import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
+import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
 import com.activegym.activegym.exceptions.MembershipStatusNotFoundException;
 import com.activegym.activegym.exceptions.MembershipTypeNotFoundException;
 import com.activegym.activegym.exceptions.UserNotFoundException;

@@ -1,7 +1,7 @@
 //package com.activegym.activegym.controller.Memberships;
 //
 //
-//import com.activegym.activegym.dto.MembershipTypeDTO;
+//import com.activegym.activegym.dto.memberships.MembershipTypeDTO;
 //import com.activegym.activegym.model.Memberships.MembershipType;
 //import com.activegym.activegym.service.Memberships.MembershipTypeService;
 //import lombok.AllArgsConstructor;

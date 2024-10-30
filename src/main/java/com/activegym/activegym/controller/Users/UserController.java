@@ -1,8 +1,8 @@
 package com.activegym.activegym.controller.Users;
 
 import com.activegym.activegym.dto.ResponseStatusMessage;
-import com.activegym.activegym.dto.UserDTO;
-import com.activegym.activegym.dto.UserResponseDTO;
+import com.activegym.activegym.dto.users.UserDTO;
+import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.model.Users.User;
 import com.activegym.activegym.security.auth.AuthService;
 import com.activegym.activegym.service.Users.UserService;

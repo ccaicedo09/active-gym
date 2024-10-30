@@ -1,9 +1,9 @@
 package com.activegym.activegym.controller.Memberships;
 
-import com.activegym.activegym.dto.MembershipDTO;
-import com.activegym.activegym.dto.MembershipResponseDTO;
-import com.activegym.activegym.dto.MembershipSalesDTO;
-import com.activegym.activegym.dto.MembershipTypeDTO;
+import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
+import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
+import com.activegym.activegym.dto.memberships.MembershipTypeDTO;
 import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.model.Memberships.MembershipType;
 import com.activegym.activegym.service.Memberships.MembershipService;
@@ -11,10 +11,8 @@ import com.activegym.activegym.service.Memberships.MembershipTypeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;

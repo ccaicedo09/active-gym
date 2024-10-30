@@ -1,7 +1,7 @@
 package com.activegym.activegym.service.Users;
 
-import com.activegym.activegym.dto.UserDTO;
-import com.activegym.activegym.dto.UserResponseDTO;
+import com.activegym.activegym.dto.users.UserDTO;
+import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.exceptions.RoleNotFoundException;
 import com.activegym.activegym.exceptions.UserNotFoundException;
 import com.activegym.activegym.model.Roles.Role;
