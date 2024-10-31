@@ -96,4 +96,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Credenciales inválidas");
     }
+
+    @ExceptionHandler(MembershipNotFoundException.class)
+    public ResponseEntity<String> handleMembershipNotFoundException(MembershipNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Membresía no encontrada");
+    }
 }

@@ -1,7 +1,7 @@
 package com.activegym.activegym.service.Users;
 
-import com.activegym.activegym.dto.UserDTO;
-import com.activegym.activegym.dto.UserResponseDTO;
+import com.activegym.activegym.dto.users.UserDTO;
+import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.exceptions.RoleNotFoundException;
 import com.activegym.activegym.exceptions.UserNotFoundException;
 import com.activegym.activegym.model.Roles.Role;
@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -144,6 +145,9 @@ public class UserService {
         auxiliarFields.castUserAuxiliarFields(userDTO, user);
 
         String defaultPassword = userDTO.getDocument();
+
+        LocalDate now = LocalDate.now();
+        user.setCreatedAt(now);
 
         user.setPassword(passwordEncoder.encode(defaultPassword)); // Default password, should be changed by User
         Role defaultRole = roleRepository.findByRoleName("MIEMBRO")
@@ -280,5 +284,13 @@ public class UserService {
         } else {
             throw new BadCredentialsException("");
         }
+    }
+
+    /**
+     * Counts the number of users created in the last week.
+     * @return the number of users created in the last week.
+     */
+    public Long countUsersCreatedLastWeek() {
+        return userRepository.countUsersCreatedInLastWeek();
     }
 }

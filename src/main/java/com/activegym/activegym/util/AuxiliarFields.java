@@ -1,6 +1,6 @@
 package com.activegym.activegym.util;
 
-import com.activegym.activegym.dto.UserDTO;
+import com.activegym.activegym.dto.users.UserDTO;
 import com.activegym.activegym.exceptions.BloodRhNotFoundException;
 import com.activegym.activegym.exceptions.BloodTypeNotFoundException;
 import com.activegym.activegym.exceptions.EpsNotFoundException;
