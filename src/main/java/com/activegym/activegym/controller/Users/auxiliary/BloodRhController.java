@@ -3,6 +3,8 @@ package com.activegym.activegym.controller.Users.auxiliary;
 
 import com.activegym.activegym.model.Users.auxiliary.BloodRh;
 import com.activegym.activegym.service.Users.auxiliary.BloodRhService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,13 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/bloodrh")
-@Tag(name = "BloodRh", description = "Controller for fetching auxiliary data about Users")
+@Tag(name = "Blood Rh Controller", description = "Controller for fetching auxiliary data about Users")
 public class BloodRhController {
 
     private final BloodRhService bloodRhService;
 
     @GetMapping
-    @Tag(name = "BloodRh", description = "Get all blood Rh")
+    @Operation(summary = "List all blood Rh types", description = "This endpoint returns all blood Rh types available in the system.")
+    @ApiResponse(responseCode = "200", description = "List of blood Rh types")
     public Iterable<BloodRh> list() {
         return bloodRhService.findAll();
     }

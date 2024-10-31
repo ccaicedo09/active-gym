@@ -1,8 +1,7 @@
 package com.activegym.activegym.util;
 
-import com.activegym.activegym.dto.MembershipResponseDTO;
-import com.activegym.activegym.dto.RoleDTO;
-import com.activegym.activegym.dto.UserResponseDTO;
+import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
+import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.model.Memberships.Membership;
 import com.activegym.activegym.model.Roles.Role;
 import com.activegym.activegym.model.Users.User;
@@ -12,10 +11,24 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
+/**
+ * Utility class for converting entities to response DTOs.
+ * This class contains the business logic for converting User and Membership entities to their respective response DTOs.
+ *
+ * @since v1.0
+ * @author Carlos Esteban Castro Caicedo
+ */
 @Service
 @RequiredArgsConstructor
 public class ConvertToResponse {
 
+    /**
+     * Converts a User entity to a UserResponseDTO.
+     *
+     * @param user the User entity to convert.
+     * @return the converted UserResponseDTO.
+     */
     public UserResponseDTO convertToResponseDTO(User user) {
         UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
@@ -37,6 +50,12 @@ public class ConvertToResponse {
         return dto;
     }
 
+    /**
+     * Converts a Membership entity to a MembershipResponseDTO.
+     *
+     * @param membership the Membership entity to convert.
+     * @return the converted MembershipResponseDTO.
+     */
     public static MembershipResponseDTO convertToMembershipResponseDTO(Membership membership) {
         MembershipResponseDTO dto = new MembershipResponseDTO();
         dto.setId(membership.getId());
