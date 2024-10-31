@@ -9,6 +9,10 @@ import com.activegym.activegym.service.Users.UserService;
 import com.activegym.activegym.util.ConvertToResponse;
 import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,20 +38,28 @@ import java.util.Map;
 @AllArgsConstructor
 @RequestMapping("api/users")
 @RestController
-@Tag(name = "Users", description = "User management")
+@Tag(name = "Users Controller", description = "Endpoints for managing users, including user creation, updates, role management, password changes, and retrieving user information.")
+
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "403", description = "Access denied. The user does not have permission to access this resource."),
+        @ApiResponse(responseCode = "500", description = "Internal server error. An unexpected error occurred.")
+})
 public class UserController {
 
-    private final UserService userService; // Injected by Lombok
-    private final ConvertToResponse convertToResponse; // Injected by Lombok
-    private final ResponseStatusMessage responseStatusMessage; // Injected by Lombok
-    private final AuthService authService; // Injected by Lombok
-    private final ExtractCurrentSessionDocument extractCurrentSessionDocument; // Injected by Lombok
+    private final UserService userService;
+    private final ConvertToResponse convertToResponse;
+    private final ResponseStatusMessage responseStatusMessage;
+    private final AuthService authService;
+    private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
 
     // Management endpoints (for ADMINISTRADOR and ASESOR roles)
-
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR', 'ENTRENADOR')")
     @GetMapping
-    @Operation(summary = "MANAGEMENT: List all users", description = "List all users with pagination included, authorized for ADMINISTRADOR and ASESOR roles")
+    @Operation(summary = "MANAGEMENT: List all users", description = "List all users with pagination. If the user is ADMINISTRADOR, all users are listed. If the user is ASESOR, only users with the MIEMBRO role are listed.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "No users found. There are no users in the system matching the criteria.")
+    })
     public ResponseEntity<Page<UserResponseDTO>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -62,6 +74,10 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping("/{document}")
     @Operation(summary = "MANAGEMENT: Get user by document", description = "Get user by their document, authorized for ADMINISTRADOR and ASESOR roles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User retrieved successfully", content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the provided document.")
+    })
     public UserResponseDTO get(@PathVariable("document") String document) throws AccessDeniedException {
         return userService.findByDocument(document);
     }
@@ -69,6 +85,11 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @PostMapping
     @Operation(summary = "MANAGEMENT: Create user", description = "Create a new user expecting a UserDTO body, authorized for ADMINISTRADOR and ASESOR roles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully", content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided UserDTO is not valid."),
+            @ApiResponse(responseCode = "409", description = "Conflict. The user with the given document already exists.")
+    })
     public ResponseEntity<UserResponseDTO> create(@RequestBody UserDTO userDTO) {
         User user = userService.create(userDTO);
         UserResponseDTO responseDTO = convertToResponse.convertToResponseDTO(user);
@@ -78,6 +99,12 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @PutMapping("/{document}")
     @Operation(summary = "MANAGEMENT: Update user", description = "Update user by their document, expecting a UserDTO body, authorized for ADMINISTRADOR and ASESOR roles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User basic information updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided UserDTO contains invalid data."),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the given document."),
+            @ApiResponse(responseCode = "409", description = "Conflict. Some of the unique constrained inputs are already in use by another user.")
+    })
     public ResponseEntity<ResponseStatusMessage> updateBasicInfo(@PathVariable("document") String document, @RequestBody UserDTO userDTO) {
         userService.updateBasicInfo(document, userDTO);
         responseStatusMessage.setMessage("Basic info updated");
@@ -87,6 +114,9 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping("/recent-count")
     @Operation(summary = "MANAGEMENT: Get recent users count", description = "Get the count of users created in the last 30 days, authorized for ADMINISTRADOR and ASESOR roles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the count of recent users")
+    })
     public ResponseEntity<Long> getRecentUsersCount() {
         return ResponseEntity.ok(userService.countUsersCreatedLastWeek());
     }
@@ -96,6 +126,11 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @PostMapping("/{document}/roles")
     @Operation(summary = "ADMIN: Add role to user", description = "Add a role to a user by their document, expecting a roleName in the body, authorized for ADMINISTRADOR role")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Role added to user successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. Role name may be missing or invalid."),
+            @ApiResponse(responseCode = "404", description = "User not found or role not found.")
+    })
     public ResponseEntity<ResponseStatusMessage> addRole(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
         String roleName = request.get("roleName");
         userService.addRole(document, roleName);
@@ -106,18 +141,24 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @DeleteMapping("/{document}/roles")
     @Operation(summary = "ADMIN: Remove role from user", description = "Remove a role from a user by their document, expecting a roleName in the body, authorized for ADMINISTRADOR role")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Role removed from user successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. Role name may be missing or invalid."),
+            @ApiResponse(responseCode = "404", description = "User not found or role not found.")
+    })
     public ResponseEntity<ResponseStatusMessage> removeRole(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
-
         String roleName = request.get("roleName");
         userService.removeRole(document, roleName);
         responseStatusMessage.setMessage("Role removed from user");
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
-
     }
 
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @GetMapping("/team")
     @Operation(summary = "ADMIN: Get team members", description = "Get all team members by roles (including all roles but MIEMBRO, authorized for ADMINISTRADOR role")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Team members retrieved successfully", content = @Content(schema = @Schema(implementation = UserResponseDTO.class)))
+    })
     public ResponseEntity<List<UserResponseDTO>> getTeamMembers() {
         List<UserResponseDTO> teamMembers = userService.getTeamMembersByRoles();
         return ResponseEntity.ok(teamMembers);
@@ -143,6 +184,11 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMINISTRADOR')")
     @PutMapping("/{document}/change-password")
     @Operation(summary = "ADMIN: Change user password", description = "Change user password by their document, expecting a password in the body, authorized for ADMINISTRADOR role")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided password does not meet requirements."),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the provided document.")
+    })
     public ResponseEntity<ResponseStatusMessage> changePassword(@PathVariable("document") String document, @RequestBody Map<String, String> request) {
         String password = request.get("password");
         userService.adminChangePassword(document, password);
@@ -153,6 +199,11 @@ public class UserController {
     // User endpoints
     @PutMapping("/change-password")
     @Operation(summary = "Change user password", description = "Change user password, expecting a password in the body, authorized for all roles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided passwords do not meet the requirements."),
+            @ApiResponse(responseCode = "401", description = "Unauthorized. The old password is incorrect.")
+    })
     public ResponseEntity<ResponseStatusMessage> changePassword(@RequestBody Map<String, String> request) {
         String document = extractCurrentSessionDocument.extractDocument();
         String oldPassword = request.get("oldPassword");
@@ -161,5 +212,4 @@ public class UserController {
         responseStatusMessage.setMessage("Password changed");
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
-
 }
