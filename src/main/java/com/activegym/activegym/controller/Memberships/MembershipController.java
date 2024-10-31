@@ -3,8 +3,11 @@ package com.activegym.activegym.controller.Memberships;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
+import com.activegym.activegym.dto.memberships.MembershipTransferDTO;
 import com.activegym.activegym.dto.memberships.MembershipTypeDTO;
 import com.activegym.activegym.dto.ResponseStatusMessage;
+import com.activegym.activegym.exceptions.MembershipNotFoundException;
+import com.activegym.activegym.exceptions.UserNotFoundException;
 import com.activegym.activegym.model.Memberships.MembershipType;
 import com.activegym.activegym.service.Memberships.MembershipService;
 import com.activegym.activegym.service.Memberships.MembershipTypeService;
@@ -67,6 +70,18 @@ public class MembershipController {
         membershipService.create(membershipDTO);
         responseStatusMessage.setMessage("Membership created");
         return ResponseEntity.status(HttpStatus.CREATED).body(responseStatusMessage);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @PostMapping("/transfer")
+    @Operation(summary = "MANAGEMENT: Transfer a membership", description = "Transfer a membership to another user, this membership must be active, be of type transferable, never been transferred before and the new user must not have an active membership.")
+    public ResponseEntity<String> transferMembership(@RequestBody MembershipTransferDTO transferDTO) {
+        try {
+            membershipService.transferMembership(transferDTO);
+            return ResponseEntity.ok("Membership transferred");
+        } catch (IllegalStateException | MembershipNotFoundException | UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // Membership types endpoints

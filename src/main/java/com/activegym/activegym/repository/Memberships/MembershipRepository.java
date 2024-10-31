@@ -91,4 +91,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
      */
     @Query("SELECT COUNT(m) FROM Membership m WHERE m.endDate > CURRENT_DATE")
     Long countActiveMemberships();
+
+    @Query("SELECT COUNT(m) > 0 FROM Membership m WHERE m.userId.id = :userId AND m.endDate >= CURRENT_DATE")
+    boolean existsActiveMembership(@Param("userId") Long userId);
 }

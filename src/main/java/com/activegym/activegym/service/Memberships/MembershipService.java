@@ -3,6 +3,8 @@ package com.activegym.activegym.service.Memberships;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
+import com.activegym.activegym.dto.memberships.MembershipTransferDTO;
+import com.activegym.activegym.exceptions.MembershipNotFoundException;
 import com.activegym.activegym.exceptions.MembershipStatusNotFoundException;
 import com.activegym.activegym.exceptions.MembershipTypeNotFoundException;
 import com.activegym.activegym.exceptions.UserNotFoundException;
@@ -16,11 +18,13 @@ import com.activegym.activegym.repository.Memberships.MembershipTypeRepository;
 import com.activegym.activegym.repository.Users.UserRepository;
 import com.activegym.activegym.util.ConvertToResponse;
 import com.activegym.activegym.util.ExtractCurrentSessionDocument;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -162,7 +166,46 @@ public class MembershipService {
         return totalEarnings != null ? totalEarnings : 0.0;
     }
 
+    /**
+     * Retrieves the total number of active memberships.
+     * @return the total number of active memberships.
+     */
     public Long getActiveMembershipsCount() {
         return membershipRepository.countActiveMemberships();
+    }
+
+    /**
+     * Transfers a membership from one user to another, given the membership ID and the new user ID.
+     * If the membership is transferable and active, has never been transferred and new user has no
+     * active membership, the operation is successful and the new owner is set and so is the transferred flag.
+     * @param transferDTO the request body containing the membership ID and the new user ID.
+     */
+    @Transactional
+    public void transferMembership(MembershipTransferDTO transferDTO) {
+        Membership membership = membershipRepository.findById(transferDTO.getMembershipId())
+                .orElseThrow(() -> new MembershipNotFoundException(""));
+
+        if (!membership.getMembershipStatus().getDescription().equals("ACTIVA")) {
+            throw new IllegalStateException("No se puede transferir una membresía en estado " + membership.getMembershipStatus().getDescription());
+        }
+
+        if (membership.isTransferred()) {
+            throw new IllegalStateException("Esta membresía ya ha sido transferida.");
+        }
+
+        if (!membership.getMembershipType().isTransferable()) {
+            throw new IllegalStateException("Este tipo de membresía no se puede transferir.");
+        }
+
+        User newOwner = userRepository.findByDocument(transferDTO.getNewUserDocument())
+                .orElseThrow(() -> new UserNotFoundException("Este usuario no existe."));
+        boolean hasActiveMembership = membershipRepository.existsActiveMembership(newOwner.getId());
+        if (hasActiveMembership) {
+            throw new IllegalStateException("El nuevo usuario ya tiene una membresía activa.");
+        }
+
+        membership.setUserId(newOwner);
+        membership.setTransferred(true);
+        membershipRepository.save(membership);
     }
 }

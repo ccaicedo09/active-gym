@@ -2,6 +2,7 @@ package com.activegym.activegym.model.Memberships;
 
 
 import com.activegym.activegym.model.Users.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -89,4 +90,12 @@ public class Membership {
     @ManyToOne
     @JoinColumn(name = "sold_by", referencedColumnName = "id")
     private User soldBy;
+
+    /**
+     * Indicates if the membership has been transferred.
+     * This field is a boolean value that specifies if the membership has been transferred to another user, if true,
+     * it cannot be transferred again.
+     */
+    @Column(name = "transferred", nullable = false)
+    private boolean transferred = false;
 }
