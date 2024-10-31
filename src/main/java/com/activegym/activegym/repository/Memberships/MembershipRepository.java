@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -94,4 +96,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
     @Query("SELECT COUNT(m) > 0 FROM Membership m WHERE m.userId.id = :userId AND m.endDate >= CURRENT_DATE")
     boolean existsActiveMembership(@Param("userId") Long userId);
+
+    List<Membership> findByEndDateBetween(LocalDate start, LocalDate end);
 }

@@ -1,5 +1,6 @@
 package com.activegym.activegym.service.Memberships;
 
+import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
@@ -207,5 +208,19 @@ public class MembershipService {
         membership.setUserId(newOwner);
         membership.setTransferred(true);
         membershipRepository.save(membership);
+    }
+
+    public List<ExpiringNotificationDTO> findExpiringMemberships() {
+        LocalDate today = LocalDate.now();
+        LocalDate warningDate = today.plusDays(1);
+        List<Membership> expiringMemberships = membershipRepository.findByEndDateBetween(today, warningDate);
+        return expiringMemberships.stream()
+                .map(m -> new ExpiringNotificationDTO(
+                        m.getUserId().getFirstName() + " " + m.getUserId().getLastName(),
+                        m.getUserId().getDocument(),
+                        m.getUserId().getPhone(),
+                        m.getMembershipType().getName(),
+                        m.getEndDate()))
+                .toList();
     }
 }

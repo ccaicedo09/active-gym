@@ -1,5 +1,6 @@
 package com.activegym.activegym.controller.Memberships;
 
+import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
@@ -147,6 +148,14 @@ public class MembershipController {
     public ResponseEntity<Long> getActiveMembershipsCount() {
         Long activeMemberships = membershipService.getActiveMembershipsCount();
         return ResponseEntity.ok(activeMemberships);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @GetMapping("/notifications/expiring")
+    @Operation(summary = "MANAGEMENT: get expiring memberships", description = "Get the count of memberships that are about to expire within the next 3 days")
+    public ResponseEntity<List<ExpiringNotificationDTO>> getAllExpiringMemberships() {
+        List<ExpiringNotificationDTO> expiringMemberships = membershipService.findExpiringMemberships();
+        return ResponseEntity.ok(expiringMemberships);
     }
     
 }
