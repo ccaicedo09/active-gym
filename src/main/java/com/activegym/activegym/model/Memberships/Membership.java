@@ -98,4 +98,25 @@ public class Membership {
      */
     @Column(name = "transferred", nullable = false)
     private boolean transferred = false;
+
+    // Freezing fields
+
+    /**
+     * Indicates if the membership has been frozen before.
+     * This field is a boolean value that specifies if the membership has been frozen before, if true,
+     * it cannot be frozen again.
+     */
+    @Column(name = "frozen", nullable = false)
+    private boolean frozen = false;
+
+
+    /**
+     * The date when the membership was frozen, if applies.
+     */
+    private LocalDate freezeDate;
+
+    /**
+     * The date when the membership was unfrozen, if applies.
+     */
+    private LocalDate unfreezeDate;
 }

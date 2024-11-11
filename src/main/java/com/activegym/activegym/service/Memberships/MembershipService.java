@@ -2,6 +2,7 @@ package com.activegym.activegym.service.Memberships;
 
 import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipFreezeDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
 import com.activegym.activegym.dto.memberships.MembershipTransferDTO;
@@ -208,6 +209,42 @@ public class MembershipService {
         membership.setUserId(newOwner);
         membership.setTransferred(true);
         membershipRepository.save(membership);
+    }
+
+    @Transactional
+    public void freezeMembership(MembershipFreezeDTO membershipFreezeDTO) {
+        Membership membership = membershipRepository.findById(membershipFreezeDTO.getMembershipId())
+                .orElseThrow(() -> new MembershipNotFoundException(""));
+
+        if (!membership.getMembershipStatus().getDescription().equals("ACTIVA")) {
+            throw new IllegalStateException("No se puede congelar una membresía en estado " + membership.getMembershipStatus().getDescription());
+        }
+
+        if (membership.isFrozen()) {
+            throw new IllegalStateException("Esta membresía ya ha sido congelada.");
+        }
+
+        if (!membership.getMembershipType().isFreezable()) {
+            throw new IllegalStateException("Este tipo de membresía no se puede congelar.");
+        }
+
+        int freezeDays = membershipFreezeDTO.getDays();
+        if (freezeDays > 15) {
+            throw new IllegalStateException("No se puede congelar una membresía por más de 15 días.");
+        }
+        if (freezeDays < 1) {
+            throw new IllegalStateException("Introduce una cantidad de días válida.");
+        }
+
+        membership.setFreezeDate(LocalDate.now());
+        membership.setUnfreezeDate(LocalDate.now().plusDays(freezeDays));
+        membership.setEndDate(membership.getEndDate().plusDays(freezeDays));
+        membership.setFrozen(true);
+        membership.setMembershipStatus(membershipStatusRepository.findByDescription("CONGELADA")
+                .orElseThrow(() -> new MembershipStatusNotFoundException("")));
+
+        membershipRepository.save(membership);
+
     }
 
     public List<ExpiringNotificationDTO> findExpiringMemberships() {

@@ -98,4 +98,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     boolean existsActiveMembership(@Param("userId") Long userId);
 
     List<Membership> findByEndDateBetween(LocalDate start, LocalDate end);
+
+    List<Membership> findByMembershipStatusIn(List<MembershipStatus> statuses);
 }
