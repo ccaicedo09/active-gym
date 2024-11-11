@@ -12,6 +12,7 @@ import com.activegym.activegym.exceptions.UserNotFoundException;
 import com.activegym.activegym.model.Memberships.MembershipType;
 import com.activegym.activegym.service.Memberships.MembershipService;
 import com.activegym.activegym.service.Memberships.MembershipTypeService;
+import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,6 +50,7 @@ public class MembershipController {
 
     private final MembershipService membershipService;
     private final MembershipTypeService membershipTypeService;
+    private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
     ResponseStatusMessage responseStatusMessage;
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
@@ -205,5 +207,17 @@ public class MembershipController {
         List<ExpiringNotificationDTO> expiringMemberships = membershipService.findExpiringMemberships();
         return ResponseEntity.ok(expiringMemberships);
     }
-    
+
+    // Self-management endpoints
+    @GetMapping("self-management/get-memberships")
+    @Operation(summary = "SELF-MANAGEMENT: Get logged user memberships", description = "Get all memberships of the logged user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user memberships", content = @Content(schema = @Schema(implementation = MembershipResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found.")
+    })
+    public ResponseEntity<List<MembershipResponseDTO>> getUserMemberships() {
+        String document = extractCurrentSessionDocument.extractDocument();
+        List<MembershipResponseDTO> memberships = membershipService.getUserMemberships(document);
+        return ResponseEntity.ok(memberships);
+    }
 }

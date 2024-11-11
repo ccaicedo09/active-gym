@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -196,7 +197,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
 
-    // User endpoints
+    // User & self-management endpoints
     @PutMapping("/change-password")
     @Operation(summary = "Change user password", description = "Change user password, expecting a password in the body, authorized for all roles")
     @ApiResponses(value = {
@@ -212,4 +213,31 @@ public class UserController {
         responseStatusMessage.setMessage("Password changed");
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
+
+    @GetMapping("self-management/get-info")
+    @Operation(summary = "SELF-MANAGEMENT: Get logged user", description = "Gets the currently logged user's information")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User retrieved successfully", content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the provided document.")
+    })
+    public UserResponseDTO getLoggedUserInfo() throws AccessDeniedException {
+        String document = extractCurrentSessionDocument.extractDocument();
+        return userService.findByDocument(document);
+    }
+
+    @PutMapping("self-management/update-info")
+    @Operation(summary = "SELF-MANAGEMENT: Update basic information", description = "Update currently logged user by extracting their document from the session, expecting a UserDTO body.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User basic information updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided UserDTO contains invalid data."),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the given document."),
+            @ApiResponse(responseCode = "409", description = "Conflict. Some of the unique constrained inputs are already in use by another user.")
+    })
+    public ResponseEntity<ResponseStatusMessage> updateBasicInfo(@RequestBody UserDTO userDTO) {
+        String document = extractCurrentSessionDocument.extractDocument();
+        userService.updateBasicInfo(document, userDTO);
+        responseStatusMessage.setMessage("Basic info updated");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
+    }
+
 }
