@@ -2,6 +2,7 @@ package com.activegym.activegym.controller.Memberships;
 
 import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipFreezeDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
 import com.activegym.activegym.dto.memberships.MembershipTransferDTO;
@@ -110,6 +111,24 @@ public class MembershipController {
         try {
             membershipService.transferMembership(transferDTO);
             return ResponseEntity.ok("Membership transferred");
+        } catch (IllegalStateException | MembershipNotFoundException | UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @PostMapping("/freeze")
+    @Operation(summary = "MANAGEMENT: Freeze a membership", description = "Freeze a membership, this membership must be active, freezable and never been frozen before..")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Membership transferred successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided data is not valid or does not meet the requirements."),
+            @ApiResponse(responseCode = "404", description = "User not found OR membership not found"),
+            @ApiResponse(responseCode = "409", description = "Conflict. The membership cannot be transferred because doesn't meet any of the requirements.")
+    })
+    public ResponseEntity<String> freezeMembership(@RequestBody MembershipFreezeDTO freezeDTO) {
+        try {
+            membershipService.freezeMembership(freezeDTO);
+            return ResponseEntity.ok("Membership frozen");
         } catch (IllegalStateException | MembershipNotFoundException | UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

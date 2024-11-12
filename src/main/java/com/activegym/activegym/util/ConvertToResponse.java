@@ -66,6 +66,7 @@ public class ConvertToResponse {
         dto.setSaleDate(membership.getSaleDate());
         dto.setMembershipStatus(membership.getMembershipStatus().getDescription());
         dto.setSoldByDocument(membership.getSoldBy().getDocument());
+        dto.setPaidAmount(membership.getPaidAmount());
 
         return dto;
     }
