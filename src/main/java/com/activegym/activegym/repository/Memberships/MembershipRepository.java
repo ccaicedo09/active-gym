@@ -12,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -81,8 +80,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
      * @param year the year to be consulted.
      * @return the total earnings in the given month and year.
      */
-    @Query("SELECT SUM(mt.price) FROM Membership m " +
-            "JOIN m.membershipType mt " +
+    @Query("SELECT SUM(m.paidAmount) FROM Membership m " +
             "WHERE EXTRACT(MONTH FROM m.saleDate) = :month " +
             "AND EXTRACT(YEAR FROM m.saleDate) = :year")
     Double calculateTotalEarningsByMonthAndYear(@Param("month") int month, @Param("year") int year);
@@ -94,8 +92,27 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     @Query("SELECT COUNT(m) FROM Membership m WHERE m.endDate > CURRENT_DATE")
     Long countActiveMemberships();
 
+    /**
+     * Checks if a user has an active membership.
+     * @param userId the id of the user to be checked.
+     * @return true if the user has an active membership, false otherwise.
+     */
     @Query("SELECT COUNT(m) > 0 FROM Membership m WHERE m.userId.id = :userId AND m.endDate >= CURRENT_DATE")
     boolean existsActiveMembership(@Param("userId") Long userId);
 
+    /**
+     * Retrieves all memberships that expire between two dates.
+     * @param start the start date of the range.
+     * @param end the end date of the range.
+     * @return a list of memberships that expire between the given dates.
+     */
     List<Membership> findByEndDateBetween(LocalDate start, LocalDate end);
+
+    /**
+     * Retrieves all memberships with a specific status.
+     * @param statuses the list of {@link MembershipStatus} to filter memberships by.
+     * @return a list of memberships that match the given statuses.
+     * @since v1.1
+     */
+    List<Membership> findByMembershipStatusIn(List<MembershipStatus> statuses);
 }

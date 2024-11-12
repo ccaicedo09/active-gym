@@ -33,6 +33,7 @@ public class Membership {
     /**
      * The unique identifier for the membership.
      * This ID is automatically generated and serves as the primary key for the membership entity.
+     * Used as the order number for the membership.
      */
     @Id
     @GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -73,6 +74,14 @@ public class Membership {
      */
     private LocalDate saleDate;
 
+
+    /**
+     * The amount paid for the membership.
+     * This field stores the total amount paid for the membership to avoid discrepancies.
+     * @since v1.1
+     */
+    private Double paidAmount;
+
     /**
      * The status of the membership.
      * This field establishes a many-to-one relationship with the {@link MembershipStatus} entity,
@@ -98,4 +107,28 @@ public class Membership {
      */
     @Column(name = "transferred", nullable = false)
     private boolean transferred = false;
+
+    // Freezing fields
+
+    /**
+     * Indicates if the membership has been frozen before.
+     * This field is a boolean value that specifies if the membership has been frozen before, if true,
+     * it cannot be frozen again.
+     * @since v1.1
+     */
+    @Column(name = "frozen", nullable = false)
+    private boolean frozen = false;
+
+
+    /**
+     * The date when the membership was frozen, if applies.
+     * @since v1.1
+     */
+    private LocalDate freezeDate;
+
+    /**
+     * The date when the membership is supposed to be unfrozen.
+     * @since v1.1
+     */
+    private LocalDate unfreezeDate;
 }

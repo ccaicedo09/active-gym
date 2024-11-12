@@ -2,6 +2,7 @@ package com.activegym.activegym.service.Memberships;
 
 import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipFreezeDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
 import com.activegym.activegym.dto.memberships.MembershipTransferDTO;
@@ -122,6 +123,7 @@ public class MembershipService {
         membership.setSoldBy(soldBy);
         membership.setMembershipType(membershipType);
         membership.setMembershipStatus(membershipStatus);
+        membership.setPaidAmount(membershipType.getPrice());
 
         LocalDate startDate = membershipDTO.getStartDate() != null ? membershipDTO.getStartDate() : LocalDate.now();
         int membershipDurationDays = membershipType.getDuration();
@@ -180,6 +182,9 @@ public class MembershipService {
      * If the membership is transferable and active, has never been transferred and new user has no
      * active membership, the operation is successful and the new owner is set and so is the transferred flag.
      * @param transferDTO the request body containing the membership ID and the new user ID.
+     * @throws MembershipNotFoundException If no membership is found with the given ID.
+     * @throws UserNotFoundException If no user is found with the given document.
+     * @throws IllegalStateException If the membership is not active, has already been transferred or is not transferable.
      */
     @Transactional
     public void transferMembership(MembershipTransferDTO transferDTO) {
@@ -210,6 +215,56 @@ public class MembershipService {
         membershipRepository.save(membership);
     }
 
+    /**
+     * Freezes a membership for a given amount of days.
+     * If the membership is active, has never been frozen, is freezable and the amount of days is valid,
+     * the operation is successful and the membership is frozen.
+     * @param membershipFreezeDTO the request body containing the membership ID and the amount of days to freeze.
+     * @throws MembershipNotFoundException If no membership is found with the given ID.
+     * @throws IllegalStateException If the membership is not active, has already been frozen, is not freezable or the amount of days is invalid.
+     * @throws MembershipStatusNotFoundException If no membership status is found with the given description.
+     * @since v1.1
+     */
+    @Transactional
+    public void freezeMembership(MembershipFreezeDTO membershipFreezeDTO) {
+        Membership membership = membershipRepository.findById(membershipFreezeDTO.getMembershipId())
+                .orElseThrow(() -> new MembershipNotFoundException(""));
+
+        if (!membership.getMembershipStatus().getDescription().equals("ACTIVA")) {
+            throw new IllegalStateException("No se puede congelar una membresía en estado " + membership.getMembershipStatus().getDescription());
+        }
+
+        if (membership.isFrozen()) {
+            throw new IllegalStateException("Esta membresía ya ha sido congelada.");
+        }
+
+        if (!membership.getMembershipType().isFreezable()) {
+            throw new IllegalStateException("Este tipo de membresía no se puede congelar.");
+        }
+
+        int freezeDays = membershipFreezeDTO.getDays();
+        if (freezeDays > 15) {
+            throw new IllegalStateException("No se puede congelar una membresía por más de 15 días.");
+        }
+        if (freezeDays < 1) {
+            throw new IllegalStateException("Introduce una cantidad de días válida.");
+        }
+
+        membership.setFreezeDate(LocalDate.now());
+        membership.setUnfreezeDate(LocalDate.now().plusDays(freezeDays));
+        membership.setEndDate(membership.getEndDate().plusDays(freezeDays));
+        membership.setFrozen(true);
+        membership.setMembershipStatus(membershipStatusRepository.findByDescription("CONGELADA")
+                .orElseThrow(() -> new MembershipStatusNotFoundException("")));
+
+        membershipRepository.save(membership);
+
+    }
+
+    /**
+     * Finds memberships that are expiring in the next day.
+     * @return a list of {@link ExpiringNotificationDTO} containing the information of the memberships that are expiring.
+     */
     public List<ExpiringNotificationDTO> findExpiringMemberships() {
         LocalDate today = LocalDate.now();
         LocalDate warningDate = today.plusDays(1);

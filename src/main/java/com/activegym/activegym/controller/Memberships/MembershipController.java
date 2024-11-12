@@ -2,6 +2,7 @@ package com.activegym.activegym.controller.Memberships;
 
 import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipFreezeDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
 import com.activegym.activegym.dto.memberships.MembershipTransferDTO;
@@ -12,6 +13,7 @@ import com.activegym.activegym.exceptions.UserNotFoundException;
 import com.activegym.activegym.model.Memberships.MembershipType;
 import com.activegym.activegym.service.Memberships.MembershipService;
 import com.activegym.activegym.service.Memberships.MembershipTypeService;
+import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,6 +51,7 @@ public class MembershipController {
 
     private final MembershipService membershipService;
     private final MembershipTypeService membershipTypeService;
+    private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
     ResponseStatusMessage responseStatusMessage;
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
@@ -108,6 +111,24 @@ public class MembershipController {
         try {
             membershipService.transferMembership(transferDTO);
             return ResponseEntity.ok("Membership transferred");
+        } catch (IllegalStateException | MembershipNotFoundException | UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @PostMapping("/freeze")
+    @Operation(summary = "MANAGEMENT: Freeze a membership", description = "Freeze a membership, this membership must be active, freezable and never been frozen before..")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Membership transferred successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided data is not valid or does not meet the requirements."),
+            @ApiResponse(responseCode = "404", description = "User not found OR membership not found"),
+            @ApiResponse(responseCode = "409", description = "Conflict. The membership cannot be transferred because doesn't meet any of the requirements.")
+    })
+    public ResponseEntity<String> freezeMembership(@RequestBody MembershipFreezeDTO freezeDTO) {
+        try {
+            membershipService.freezeMembership(freezeDTO);
+            return ResponseEntity.ok("Membership frozen");
         } catch (IllegalStateException | MembershipNotFoundException | UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -205,5 +226,17 @@ public class MembershipController {
         List<ExpiringNotificationDTO> expiringMemberships = membershipService.findExpiringMemberships();
         return ResponseEntity.ok(expiringMemberships);
     }
-    
+
+    // Self-management endpoints
+    @GetMapping("self-management/get-memberships")
+    @Operation(summary = "SELF-MANAGEMENT: Get logged user memberships", description = "Get all memberships of the logged user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user memberships", content = @Content(schema = @Schema(implementation = MembershipResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found.")
+    })
+    public ResponseEntity<List<MembershipResponseDTO>> getUserMemberships() {
+        String document = extractCurrentSessionDocument.extractDocument();
+        List<MembershipResponseDTO> memberships = membershipService.getUserMemberships(document);
+        return ResponseEntity.ok(memberships);
+    }
 }
