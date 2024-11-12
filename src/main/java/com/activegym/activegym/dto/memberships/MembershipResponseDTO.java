@@ -26,4 +26,5 @@ public class MembershipResponseDTO {
     private LocalDate saleDate;
     private String membershipStatus;
     private String soldByDocument;
+    private Double paidAmount;
 }
