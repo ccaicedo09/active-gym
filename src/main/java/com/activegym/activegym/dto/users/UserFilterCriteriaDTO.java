@@ -8,7 +8,7 @@ import lombok.Data;
  * This DTO includes the required params for filtering users through the respective endpoints
  * that need users' filtering.
  *
- * @since v1.3
+ * @since v1.2
  * @author Carlos Esteban Castro Caicedo
  */
 @Data
