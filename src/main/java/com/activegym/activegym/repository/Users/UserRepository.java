@@ -23,23 +23,39 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
-     * Retrieves a paginated list of all users.
+     * Retrieves a paginated list of all users, filtered by the provided criteria.
      *
      * @param pageable the pagination information (page number, size, sorting).
      * @return a {@link Page} containing users based on the pagination criteria.
      */
-    Page<User> findAll(Pageable pageable);
+    @Query("SELECT u FROM User u " +
+            "WHERE (:document IS NULL OR u.document = :document) " +
+            "AND (:name IS NULL OR CONCAT(u.firstName, ' ', u.lastName) ILIKE %:name%) " +
+            "AND (:phone IS NULL OR u.phone ILIKE :phone%)")
+    Page<User> findAll(
+            @Param("document") String document,
+            @Param("name") String name,
+            @Param("phone") String phone,
+            Pageable pageable);
 
     /**
-     * Retrieves users who have only the 'MIEMBRO' role assigned and no other roles.
+     * Retrieves users who have only the 'MIEMBRO' role assigned and no other roles,
+     * filtered by the provided criteria.
      * Uses a JPQL query to perform a join with the roles and filter the results.
      *
      * @param pageable the pagination information.
      * @return a {@link Page} containing users with only the 'MIEMBRO' role.
      */
     @Query("SELECT u FROM User u JOIN u.roles r " +
-            "WHERE r.roleName = 'MIEMBRO' AND SIZE(u.roles) = 1")
-    Page<User> findUsersWithOnlyMemberRole(Pageable pageable);
+            "WHERE (:document IS NULL OR u.document = :document) " +
+            "AND (:name IS NULL OR CONCAT(u.firstName, ' ', u.lastName) ILIKE %:name%) " +
+            "AND (:phone IS NULL OR u.phone ILIKE :phone%) " +
+            "AND (r.roleName = 'MIEMBRO' AND SIZE(u.roles) = 1)")
+    Page<User> findUsersWithOnlyMemberRole(
+            @Param("document") String document,
+            @Param("name") String name,
+            @Param("phone") String phone,
+            Pageable pageable);
 
     /**
      * Finds a user by their document number.

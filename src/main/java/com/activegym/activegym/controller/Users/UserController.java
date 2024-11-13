@@ -2,6 +2,7 @@ package com.activegym.activegym.controller.Users;
 
 import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.dto.users.UserDTO;
+import com.activegym.activegym.dto.users.UserFilterCriteriaDTO;
 import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.model.Users.User;
 import com.activegym.activegym.security.auth.AuthService;
@@ -56,19 +57,28 @@ public class UserController {
     // Management endpoints (for ADMINISTRADOR and ASESOR roles)
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR', 'ENTRENADOR')")
     @GetMapping
-    @Operation(summary = "MANAGEMENT: List all users", description = "List all users with pagination. If the user is ADMINISTRADOR, all users are listed. If the user is ASESOR, only users with the MIEMBRO role are listed.")
+    @Operation(summary = "MANAGEMENT: List all users", description = "List all users with pagination. If the user is ADMINISTRADOR, all users are listed. If the user is ASESOR, only users with the MIEMBRO role are listed. This list of users can be filtered by document, name, and phone.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = @Content(schema = @Schema(implementation = UserResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "No users found. There are no users in the system matching the criteria.")
     })
     public ResponseEntity<Page<UserResponseDTO>> list(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String document,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String phone) {
+
+        UserFilterCriteriaDTO criteria = UserFilterCriteriaDTO.builder()
+                .document(document)
+                .name(name)
+                .phone(phone)
+                .build();
 
         if (authService.getUserRoles().contains("ADMINISTRADOR")) {
-            return ResponseEntity.ok(userService.findAll(page, size));
+            return ResponseEntity.ok(userService.findAll(criteria, page, size));
         } else {
-            return ResponseEntity.ok(userService.findUsersWithOnlyMemberRole(page, size));
+            return ResponseEntity.ok(userService.findUsersWithOnlyMemberRole(criteria, page, size));
         }
     }
 

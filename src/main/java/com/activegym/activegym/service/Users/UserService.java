@@ -1,6 +1,7 @@
 package com.activegym.activegym.service.Users;
 
 import com.activegym.activegym.dto.users.UserDTO;
+import com.activegym.activegym.dto.users.UserFilterCriteriaDTO;
 import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.exceptions.RoleNotFoundException;
 import com.activegym.activegym.exceptions.UserNotFoundException;
@@ -60,17 +61,22 @@ public class UserService {
     private final AuthService authService;
 
     /**
-     * Retrieves a paginates list of all users (including all roles).
+     * Retrieves a paginates list of all users (including all roles), filtering by the criteria if provided.
      *
-     * @param page the page number to retrieve.
-     * @param size the number of users per page.
+     * @param criteria the criteria to filter the users.
+     * @param page     the page number to retrieve.
+     * @param size     the number of users per page.
      * @return a paginated list of all users.
      */
-    public Page<UserResponseDTO> findAll(int page, int size) {
+    public Page<UserResponseDTO> findAll(UserFilterCriteriaDTO criteria, int page, int size) {
 
         PageRequest pageable = PageRequest.of(page, size);
 
-        return userRepository.findAll(pageable)
+        return userRepository.findAll(
+                criteria.getDocument(),
+                criteria.getName(),
+                criteria.getPhone(),
+                pageable)
                 .map(user -> {
                     ageCalculator.setAge(user);
                     return userResponse.convertToResponseDTO(user);
@@ -78,16 +84,22 @@ public class UserService {
     }
 
     /**
-     * Finds a paginated list of users with only the "MIEMBRO" role.
+     * Finds a paginated list of users with only the "MIEMBRO" role,
+     * filtering by the criteria if provided.
      *
-     * @param page the page number to retrieve.
-     * @param size the size of members per page.
+     * @param criteria the criteria to filter the users.
+     * @param page     the page number to retrieve.
+     * @param size     the size of members per page.
      * @return a paginated list of users with only the "MIEMBRO" role.
      */
-    public Page<UserResponseDTO> findUsersWithOnlyMemberRole(int page, int size) {
+    public Page<UserResponseDTO> findUsersWithOnlyMemberRole(UserFilterCriteriaDTO criteria, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
 
-        return userRepository.findUsersWithOnlyMemberRole(pageable)
+        return userRepository.findUsersWithOnlyMemberRole(
+                criteria.getDocument(),
+                criteria.getName(),
+                criteria.getPhone(),
+                pageable)
                 .map(user -> {
                     ageCalculator.setAge(user);
                     return userResponse.convertToResponseDTO(user);
