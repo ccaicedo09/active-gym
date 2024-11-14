@@ -2,6 +2,7 @@ package com.activegym.activegym.service.Memberships;
 
 import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipFilterCriteriaDTO;
 import com.activegym.activegym.dto.memberships.MembershipFreezeDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -60,16 +62,22 @@ public class MembershipService {
     private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
 
     /**
-     * List all memberships with pagination.
+     * List all memberships with pagination filtering by the given criteria.
      *
      * @param page the page number
      * @param size the number of memberships per page.
      * @return all memberships ordered by end date, ensuring active memberships are shown first.
      */
-    public Page<MembershipResponseDTO> getAllMemberships(int page, int size) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "endDate"));
+    public Page<MembershipResponseDTO> getAllMemberships(MembershipFilterCriteriaDTO criteria, int page, int size) {
+        PageRequest pageable = PageRequest.of(page, size);
 
-        return membershipRepository.findAll(pageable)
+        return membershipRepository.findAll(
+                criteria.getUserDocument(),
+                criteria.getMembershipType(),
+                criteria.getMembershipStatus(),
+                criteria.getFrozen(),
+                criteria.getTransferred(),
+                pageable)
                 .map(ConvertToResponse::convertToMembershipResponseDTO);
     }
 
