@@ -2,6 +2,7 @@ package com.activegym.activegym.controller.Memberships;
 
 import com.activegym.activegym.dto.memberships.ExpiringNotificationDTO;
 import com.activegym.activegym.dto.memberships.MembershipDTO;
+import com.activegym.activegym.dto.memberships.MembershipFilterCriteriaDTO;
 import com.activegym.activegym.dto.memberships.MembershipFreezeDTO;
 import com.activegym.activegym.dto.memberships.MembershipResponseDTO;
 import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @CrossOrigin(origins = {"http://localhost:4200", "https://activegym.vercel.app/"})
@@ -56,16 +60,29 @@ public class MembershipController {
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @GetMapping
-    @Operation(summary = "MANAGEMENT: Get all memberships", description = "Get all memberships including all of the statuses with pagination")
+    @Operation(summary = "MANAGEMENT: Get all memberships", description = "Get all memberships including all of the statuses with pagination and filtering options.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Memberships retrieved successfully", content = @Content(schema = @Schema(implementation = MembershipResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "No memberships found for the given criteria.")
     })
     public ResponseEntity<Page<MembershipResponseDTO>> getAllMemberships(
+            @RequestParam(required = false) String userDocument,
+            @RequestParam(required = false) String membershipType,
+            @RequestParam(required = false) String membershipStatus,
+            @RequestParam(required = false) Boolean frozen,
+            @RequestParam(required = false) Boolean transferred,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<MembershipResponseDTO> memberships = membershipService.getAllMemberships(page, size);
+        MembershipFilterCriteriaDTO criteria = MembershipFilterCriteriaDTO.builder()
+                .userDocument(userDocument)
+                .membershipType(membershipType)
+                .membershipStatus(membershipStatus)
+                .frozen(frozen)
+                .transferred(transferred)
+                .build();
+
+        Page<MembershipResponseDTO> memberships = membershipService.getAllMemberships(criteria, page, size);
         return ResponseEntity.ok(memberships);
     }
 

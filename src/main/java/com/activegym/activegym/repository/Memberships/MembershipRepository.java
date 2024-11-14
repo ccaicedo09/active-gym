@@ -4,13 +4,17 @@ import com.activegym.activegym.dto.memberships.MembershipSalesDTO;
 import com.activegym.activegym.model.Memberships.Membership;
 import com.activegym.activegym.model.Memberships.MembershipStatus;
 import com.activegym.activegym.model.Users.User;
+import jakarta.persistence.TemporalType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -25,12 +29,25 @@ import java.util.List;
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
     /**
-     * Retrieves a paginated list of all memberships.
+     * Retrieves a paginated list of all memberships, filtered by the given criteria.
      *
      * @param pageable the pagination information.
      * @return a {@link Page} containing the memberships.
      */
-    Page<Membership> findAll(Pageable pageable);
+    @Query("SELECT m FROM Membership m " +
+        "WHERE (:userDocument IS NULL OR m.userId.document = :userDocument) " +
+        "AND (:membershipType IS NULL OR m.membershipType.name = :membershipType) " +
+        "AND (:membershipStatus IS NULL OR m.membershipStatus.description = :membershipStatus) " +
+        "AND (:frozen IS NULL OR m.frozen = :frozen) " +
+        "AND (:transferred IS NULL OR m.transferred = :transferred) " +
+        "ORDER BY m.endDate DESC")
+    Page<Membership> findAll(
+            @Param("userDocument") String userDocument,
+            @Param("membershipType") String membershipType,
+            @Param("membershipStatus") String membershipStatus,
+            @Param("frozen") Boolean frozen,
+            @Param("transferred") Boolean transferred,
+            Pageable pageable);
 
     /**
      * Retrieves all memberships for a specific user, ordered by the end date in descending order.
