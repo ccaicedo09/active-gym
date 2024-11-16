@@ -37,8 +37,11 @@ dependencies {
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
 	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
-// https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java
+	// https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java
 	implementation group: 'io.github.cdimascio', name: 'dotenv-java', version: '3.0.2'
+	// https://mvnrepository.com/artifact/software.amazon.awssdk/s3
+	implementation group: 'software.amazon.awssdk', name: 's3', version: '2.29.12'
+
 }
 
 javadoc {

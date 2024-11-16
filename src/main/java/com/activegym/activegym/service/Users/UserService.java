@@ -1,12 +1,16 @@
 package com.activegym.activegym.service.Users;
 
+import com.activegym.activegym.aws.service.S3ServiceImpl;
 import com.activegym.activegym.dto.users.UserDTO;
 import com.activegym.activegym.dto.users.UserFilterCriteriaDTO;
+import com.activegym.activegym.dto.users.UserOverviewDTO;
 import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.exceptions.RoleNotFoundException;
 import com.activegym.activegym.exceptions.UserNotFoundException;
+import com.activegym.activegym.model.Memberships.Membership;
 import com.activegym.activegym.model.Roles.Role;
 import com.activegym.activegym.model.Users.User;
+import com.activegym.activegym.repository.Memberships.MembershipRepository;
 import com.activegym.activegym.repository.Roles.RoleRepository;
 import com.activegym.activegym.repository.Users.UserRepository;
 import com.activegym.activegym.security.auth.AuthService;
@@ -20,10 +24,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for managing user-related operations.
@@ -59,6 +67,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final AuthService authService;
+    private final S3ServiceImpl s3Service;
+    private final MembershipRepository membershipRepository;
 
     /**
      * Retrieves a paginates list of all users (including all roles), filtering by the criteria if provided.
@@ -107,6 +117,39 @@ public class UserService {
     }
 
     /**
+     * Retrieves an overview of a user, including their name, roles, profile picture, and membership status.
+     * This method is intended to be used mainly to show the user's profile picture and other basic information.
+     * @param document the document of the user to retrieve.
+     * @return the user overview DTO containing the user's name, roles, profile picture, membership status, and days left.
+     * @throws UserNotFoundException if the user is not found.
+     * @see UserOverviewDTO
+     * @since v1.3
+     */
+    public UserOverviewDTO getUserOverview(String document) {
+
+        User user = userRepository.findByDocument(document)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        Optional<Membership> activeMembership = membershipRepository.findFirstByUserIdAndMembershipStatusDescriptionOrderByEndDateDesc(user, "ACTIVA");
+
+        boolean hasMembership = activeMembership.isPresent();
+        int daysLeft = 0;
+
+        if (hasMembership) {
+            Membership membership = activeMembership.get();
+            daysLeft = (int) ChronoUnit.DAYS.between(LocalDate.now(), membership.getEndDate());
+        }
+
+        return UserOverviewDTO.builder()
+                .name(user.getFirstName() + " " + user.getLastName())
+                .roles(user.getRoles().stream().map(Role::getRoleName).toList())
+                .profilePicture(user.getProfilePicture())
+                .hasMembership(hasMembership)
+                .daysLeft(daysLeft)
+                .build();
+    }
+
+    /**
      * Gets a list of team members by their roles. This method is intended to be used by the admin users.
      *
      * @return a list of team members with roles "ADMINISTRADOR", "ASESOR", "ENTRENADOR", and "PERSONAL DE ASEO".
@@ -148,10 +191,11 @@ public class UserService {
      * Create a new user.
      *
      * @param userDTO the user DTO containing the user information.
+     * @param profilePicture the profile picture of the user.
      * @return the created user with a default password (their document) and the role "MIEMBRO".
      * @throws RoleNotFoundException if the role "MIEMBRO" is not found.
      */
-    public User create(UserDTO userDTO) {
+    public User create(UserDTO userDTO, MultipartFile profilePicture) throws IOException {
         User user = mapper.map(userDTO, User.class);
 
         auxiliarFields.castUserAuxiliarFields(userDTO, user);
@@ -162,9 +206,13 @@ public class UserService {
         user.setCreatedAt(now);
 
         user.setPassword(passwordEncoder.encode(defaultPassword)); // Default password, should be changed by User
+
         Role defaultRole = roleRepository.findByRoleName("MIEMBRO")
                 .orElseThrow(() -> new RoleNotFoundException(""));
         user.getRoles().add(defaultRole);
+
+        String profilePictureUrl = s3Service.uploadFile(profilePicture);
+        user.setProfilePicture(profilePictureUrl);
 
         return userRepository.save(user);
     }
@@ -200,6 +248,25 @@ public class UserService {
         if (userDTO.getDateOfBirth() != null) user.setDateOfBirth(userDTO.getDateOfBirth());
 
         auxiliarFields.castUserAuxiliarFields(userDTO, user);
+
+        userRepository.save(user);
+    }
+
+    /**
+     * Update the profile picture of a user.
+     *
+     * @param document the document of the user to update.
+     * @param profilePicture the new profile image of the user.
+     * @throws UserNotFoundException if the user is not found.
+     */
+    public void updateProfilePicture(String document, MultipartFile profilePicture) throws IOException {
+        User user = userRepository
+                .findByDocument(document)
+                .orElseThrow(() -> new UserNotFoundException(""));
+
+        s3Service.deleteFile(user.getProfilePicture());
+        String profilePictureUrl = s3Service.uploadFile(profilePicture);
+        user.setProfilePicture(profilePictureUrl);
 
         userRepository.save(user);
     }

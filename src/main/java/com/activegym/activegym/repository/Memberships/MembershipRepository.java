@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for managing {@link Membership} entities.
@@ -132,4 +133,13 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
      * @since v1.1
      */
     List<Membership> findByMembershipStatusIn(List<MembershipStatus> statuses);
+
+    /**
+     * Retrieves the first membership (the ACTIVA one if exists) of a user with a specific status, ordered by end date in descending order.
+     * @param user the {@link User} whose memberships are to be retrieved.
+     * @param status the status to filter memberships by.
+     * @return an {@link Optional} containing the first membership that matches the given status.
+     * @since v1.3
+     */
+    Optional<Membership> findFirstByUserIdAndMembershipStatusDescriptionOrderByEndDateDesc(User user, String status);
 }
