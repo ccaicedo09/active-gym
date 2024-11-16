@@ -3,6 +3,7 @@ package com.activegym.activegym.controller.Users;
 import com.activegym.activegym.dto.ResponseStatusMessage;
 import com.activegym.activegym.dto.users.UserDTO;
 import com.activegym.activegym.dto.users.UserFilterCriteriaDTO;
+import com.activegym.activegym.dto.users.UserOverviewDTO;
 import com.activegym.activegym.dto.users.UserResponseDTO;
 import com.activegym.activegym.model.Users.User;
 import com.activegym.activegym.security.auth.AuthService;
@@ -30,8 +31,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +98,17 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @Operation(summary = "MANAGEMENT: Get user overview", description = "Get user overview by their document, authorized for ADMINISTRADOR and ASESOR roles.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User overview retrieved successfully", content = @Content(schema = @Schema(implementation = UserOverviewDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the provided document.")
+    })
+    @GetMapping("/{document}/overview")
+    public UserOverviewDTO getUserOverview(@PathVariable("document") String document) {
+        return userService.getUserOverview(document);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
     @PostMapping
     @Operation(summary = "MANAGEMENT: Create user", description = "Create a new user expecting a UserDTO body, authorized for ADMINISTRADOR and ASESOR roles")
     @ApiResponses(value = {
@@ -101,8 +116,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid input. The provided UserDTO is not valid."),
             @ApiResponse(responseCode = "409", description = "Conflict. The user with the given document already exists.")
     })
-    public ResponseEntity<UserResponseDTO> create(@RequestBody UserDTO userDTO) {
-        User user = userService.create(userDTO);
+    public ResponseEntity<UserResponseDTO> create(@RequestPart("data") UserDTO userDTO, @RequestParam("profile-picture")MultipartFile profilePicture) throws IOException {
+        User user = userService.create(userDTO, profilePicture);
         UserResponseDTO responseDTO = convertToResponse.convertToResponseDTO(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
@@ -119,6 +134,20 @@ public class UserController {
     public ResponseEntity<ResponseStatusMessage> updateBasicInfo(@PathVariable("document") String document, @RequestBody UserDTO userDTO) {
         userService.updateBasicInfo(document, userDTO);
         responseStatusMessage.setMessage("Basic info updated");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMINISTRADOR', 'ASESOR')")
+    @PutMapping("/{document}/profile-picture")
+    @Operation(summary = "MANAGEMENT: Update user profile image", description = "Update user profile image by their document, expecting a MultipartFile, authorized for ADMINISTRADOR and ASESOR roles")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile image updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided image is not valid."),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the given document.")
+    })
+    public ResponseEntity<ResponseStatusMessage> updateProfileImage(@PathVariable("document") String document, @RequestPart("profile-picture") MultipartFile profilePicture) throws IOException {
+        userService.updateProfilePicture(document, profilePicture);
+        responseStatusMessage.setMessage("Profile picture updated");
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
 
@@ -247,6 +276,31 @@ public class UserController {
         String document = extractCurrentSessionDocument.extractDocument();
         userService.updateBasicInfo(document, userDTO);
         responseStatusMessage.setMessage("Basic info updated");
+        return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
+    }
+
+    @Operation(summary = "SELF-MANAGEMENT: Get user overview", description = "Get the logged user's overview by extracting their document from the session.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User overview retrieved successfully", content = @Content(schema = @Schema(implementation = UserOverviewDTO.class))),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the provided document.")
+    })
+    @GetMapping("/self-management/overview")
+    public UserOverviewDTO getSelfUserOverview() {
+        String document = extractCurrentSessionDocument.extractDocument();
+        return userService.getUserOverview(document);
+    }
+
+    @PutMapping("/self-management/profile-picture")
+    @Operation(summary = "SELF-MANAGEMENT: Update user profile picture", description = "Update logged user's profile picture by extracting their document from the session, expecting a MultipartFile.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profile image updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input. The provided image is not valid."),
+            @ApiResponse(responseCode = "404", description = "User not found. No user exists with the given document.")
+    })
+    public ResponseEntity<ResponseStatusMessage> updateSelfProfilePicture(@RequestPart("profile-picture") MultipartFile profilePicture) throws IOException {
+        String document = extractCurrentSessionDocument.extractDocument();
+        userService.updateProfilePicture(document, profilePicture);
+        responseStatusMessage.setMessage("Profile picture updated");
         return ResponseEntity.status(HttpStatus.OK).body(responseStatusMessage);
     }
 
