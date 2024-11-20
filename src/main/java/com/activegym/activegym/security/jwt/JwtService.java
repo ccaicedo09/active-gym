@@ -58,12 +58,14 @@ public class JwtService {
         User customUser = (User) user;
         String document = customUser.getDocument();
         String userName = customUser.getFirstName();
+        String profilePicture = customUser.getProfilePicture();
 
         return Jwts
                 .builder()
                 .claims(extraClaims)
                 .claim("document", document)
                 .claim("userName", userName)
+                .claim("profilePicture", profilePicture)
                 .subject(user.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour expiration
@@ -89,6 +91,10 @@ public class JwtService {
      */
     public String getUsernameFromToken(String token) {
         return getClaim(token, Claims::getSubject);
+    }
+
+    public String getProfilePictureFromToken(String token) {
+        return getClaim(token, claims -> claims.get("profilePicture", String.class));
     }
 
     /**

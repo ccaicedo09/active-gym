@@ -17,6 +17,7 @@ import com.activegym.activegym.security.auth.AuthService;
 import com.activegym.activegym.util.AgeCalculator;
 import com.activegym.activegym.util.AuxiliarFields;
 import com.activegym.activegym.util.ConvertToResponse;
+import com.activegym.activegym.util.ExtractCurrentSessionDocument;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -69,6 +70,7 @@ public class UserService {
     private final AuthService authService;
     private final S3ServiceImpl s3Service;
     private final MembershipRepository membershipRepository;
+    private final ExtractCurrentSessionDocument extractCurrentSessionDocument;
 
     /**
      * Retrieves a paginates list of all users (including all roles), filtering by the criteria if provided.
@@ -173,6 +175,13 @@ public class UserService {
         User user = userRepository
                 .findByDocument(document)
                 .orElseThrow(() -> new UserNotFoundException("Member not found"));
+
+        String currentUserDocument = extractCurrentSessionDocument.extractDocument();
+
+        if (currentUserDocument.equals(document)) {
+            ageCalculator.setAge(user);
+            return userResponse.convertToResponseDTO(user);
+        }
 
         List<String> requestUserRoles = authService.getUserRoles();
         List<String> targetUserRoles = user.getRoles().stream()

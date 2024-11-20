@@ -115,7 +115,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
      * @param userId the id of the user to be checked.
      * @return true if the user has an active membership, false otherwise.
      */
-    @Query("SELECT COUNT(m) > 0 FROM Membership m WHERE m.userId.id = :userId AND m.endDate >= CURRENT_DATE")
+    @Query("SELECT COUNT(m) > 0 FROM Membership m WHERE m.userId.id = :userId AND m.endDate >= CURRENT_DATE AND m.membershipStatus.description = 'ACTIVA'")
     boolean existsActiveMembership(@Param("userId") Long userId);
 
     /**

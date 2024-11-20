@@ -52,6 +52,8 @@ public class AuthService {
 
         String userName = jwtService.extractUserName(token);
 
+        String profilePicture = jwtService.getProfilePictureFromToken(token);
+
         List<String> authorities = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
@@ -68,6 +70,7 @@ public class AuthService {
                 .body(AuthResponse.builder()
                         .token(token)
                         .userName(userName)
+                        .profilePicture(profilePicture)
                         .build());
     }
 

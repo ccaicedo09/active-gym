@@ -8,6 +8,7 @@ import com.activegym.activegym.model.Users.User;
 import com.activegym.activegym.repository.Memberships.MembershipRepository;
 import com.activegym.activegym.repository.Users.AccessLogRepository;
 import com.activegym.activegym.repository.Users.UserRepository;
+import com.activegym.activegym.util.FormatDateTime;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +23,7 @@ public class AccessControlService {
     private final UserRepository userRepository;
     private final AccessLogRepository accessLogRepository;
     private final MembershipRepository membershipRepository;
+    private final FormatDateTime formatDateTime;
     private static final List<String> teamRoles = List.of("ADMINISTRADOR", "ASESOR", "ENTRENADOR", "PERSONAL DE ASEO");
 
     public String access(String document) {
@@ -55,7 +57,7 @@ public class AccessControlService {
         return accessLogRepository.findAll(pageable)
                 .map(accessLog -> new UserAccessResponseDTO(
                         accessLog.getId(),
-                        accessLog.getAccessDateTime().toString(),
+                        formatDateTime.formatDateTime(accessLog.getAccessDateTime()),
                         accessLog.getSuccess(),
                         accessLog.getUserId().getDocument()
                 ));
@@ -71,7 +73,7 @@ public class AccessControlService {
         return accessLogRepository.findAllByUserId(user, pageable)
                 .map(accessLog -> new UserAccessResponseDTO(
                         accessLog.getId(),
-                        accessLog.getAccessDateTime().toString(),
+                        formatDateTime.formatDateTime(accessLog.getAccessDateTime()),
                         accessLog.getSuccess(),
                         accessLog.getUserId().getDocument()
                 ));
