@@ -27,4 +27,9 @@ public class AuthResponse {
      * The username of the authenticated user.
      */
     String userName;
+
+    /**
+     * The user profile picture
+     */
+    String profilePicture;
 }
