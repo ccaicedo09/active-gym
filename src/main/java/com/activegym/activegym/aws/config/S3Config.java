@@ -8,6 +8,12 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
+/**
+ * Configuration class for S3 client. Provides de S3 client bean adding the AWS credentials
+ * for uploading files to the S3 bucket.
+ * @since v1.3
+ * @author Carlos Esteban Castro Caicedo
+ */
 @Configuration
 public class S3Config {
 

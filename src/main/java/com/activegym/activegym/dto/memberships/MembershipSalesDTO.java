@@ -4,6 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Data Transfer Object for membership sales count.
+ * @author Carlos Esteban Castro Caicedo
+ * @since v1.2
+ */
 @Getter
 @Setter
 @AllArgsConstructor
