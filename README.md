@@ -24,7 +24,7 @@ The Active Gym Backend is a Spring Boot application that manages gym memberships
 
 ## Database model 🗂️
 *Next up you can see the model followed for designing the entities for the project, note that some fields have been added and some have been edited:*
-<img src="relationalModel.jpg">
+<img src="https://i.imgur.com/6C70hAw.png">
 
 ## Contact me! ✌️
 
