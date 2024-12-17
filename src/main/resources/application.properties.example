@@ -1,0 +1,8 @@
+spring.jpa.hibernate.ddl-auto= # user when running for the first time
+spring.application.name=activegym
+server.port=
+spring.datasource.url= #jdbc:postgresql://localhost:5432/
+spring.datasource.username=
+spring.datasource.password=
+springdoc.api-docs.enabled=true
+springdoc.swagger-ui.enabled=true
